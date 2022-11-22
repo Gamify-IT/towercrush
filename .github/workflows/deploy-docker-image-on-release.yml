@@ -17,7 +17,6 @@ env:
 jobs:
 #  test:
 #    uses: ./.github/workflows/test.yml
-
   build-and-push-image:
     runs-on: self-hosted
     needs: [test]
