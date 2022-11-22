@@ -19,7 +19,7 @@ jobs:
 #    uses: ./.github/workflows/test.yml
   build-and-push-image:
     runs-on: self-hosted
-    needs: [test]
+#    needs: [test]
     permissions:
       contents: read
       packages: write
