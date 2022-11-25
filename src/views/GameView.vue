@@ -84,7 +84,7 @@ function handleMessageReceipt(messageBody: string) {
 }
 
 function connectGame() {
-  const socket = new SockJS("/minigames/towercrush/api");
+  const socket = new SockJS("/minigames/towercrush/api/v1/connect");
   stompClientGame.value = Stomp.over(socket);
   stompClientGame.value.connect({}, () => {
     handleMessageReceipt("Connected");
