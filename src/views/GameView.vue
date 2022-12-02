@@ -49,7 +49,7 @@ function connectToLobby() {
   stompClientGame.value.connect({}, () => {
     handleMessageReceipt("Connected");
     stompClientGame.value.subscribe(
-      "/topic/games/" + lobbyName.value,
+      "/topic/lobbies/" + lobbyName.value,
       function (messageOutput: any) {
         handleMessageReceipt(messageOutput.body);
       }
