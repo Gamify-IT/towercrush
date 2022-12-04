@@ -59,7 +59,7 @@ function connectToLobby() {
 
 function joinTeam(teamName: string) {
   stompClientGame.value.send(
-    "/ws/lobby/${lobbyName.value}/join/team/${teamName}/player/${playerName.value}"
+    `/ws/lobby/${lobbyName.value}/join/team/${teamName}/player/${playerName.value}`
   );
 }
 
