@@ -143,6 +143,14 @@ div {
   /*border: black solid 1px;*/
 }
 
+.content {
+  background-color: var(--background-main);
+  height: 93vh;
+  max-width: 100vw;
+  padding: 1vw;
+  color: var(--text-main);
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
