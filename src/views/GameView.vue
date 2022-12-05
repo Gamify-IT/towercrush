@@ -100,10 +100,7 @@ function handleMessageReceipt(messageBody: string) {
           !teamBeta.value.includes(joinTeam.player)
         ) {
           teamBeta.value.push(joinTeam.player);
-          teamAlpha.value.splice(
-            teamAlpha.value.indexOf(joinTeam.player),
-            1
-          );
+          teamAlpha.value.splice(teamAlpha.value.indexOf(joinTeam.player), 1);
         }
         break;
       default:
