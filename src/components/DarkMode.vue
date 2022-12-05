@@ -86,15 +86,15 @@ export default {
   position: absolute;
   background-color: var(--button-main);
   border-radius: 10px;
-  top: 2px;
+  top: 3px;
   left: 2px;
-  height: 30px;
+  height: 28px;
   width: 30px;
   transform: translateX(0);
   transition: transform 0.3s ease, background-color 0.5s ease;
 }
 
 .switch-toggle-checked {
-  transform: translateX(33px) !important;
+  transform: translateX(32px) !important;
 }
 </style>
