@@ -27,6 +27,7 @@
       Messages: {{ messages }}<br />
       Team Alpha: {{ teamAlpha }}<br />
       Team Beta: {{ teamBeta }}<br />
+      Members: {{ members }}<br />
     </div>
   </div>
 </template>
@@ -34,27 +35,36 @@
 import { ref } from "vue";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { JoinTeamMessage, MessageWrapper, Purpose } from "@/ts/models";
+import {
+  JoinLobbyMessage,
+  JoinTeamMessage,
+  MessageWrapper,
+  Purpose,
+} from "@/ts/models";
 
 const messages = ref<Array<string>>([]);
 let stompClientGame = ref();
 let lobby = ref("");
 let teamAlpha = ref<Array<string>>([]);
 let teamBeta = ref<Array<string>>([]);
+let members = ref<Array<string>>([]);
 const player = ref("");
 
 function connectToLobby() {
   const socket = new SockJS("/minigames/towercrush/api/v1/connect");
   stompClientGame.value = Stomp.over(socket);
-  stompClientGame.value.connect({}, () => {
-    handleMessageReceipt("Connected");
-    stompClientGame.value.subscribe(
-      "/topic/lobbies/" + lobby.value,
-      function (messageOutput: any) {
-        handleMessageReceipt(messageOutput.body);
-      }
-    );
-  });
+  stompClientGame.value.connect(
+    { player: player.value, lobby: lobby.value },
+    (messageOutput: any) => {
+      handleMessageReceipt(messageOutput.body);
+      stompClientGame.value.subscribe(
+        "/topic/lobbies/" + lobby.value,
+        function (messageOutput: any) {
+          handleMessageReceipt(messageOutput.body);
+        }
+      );
+    }
+  );
 }
 
 function joinTeam(team: string) {
@@ -79,35 +89,51 @@ function disconnectFromLobby() {
 }
 
 function handleMessageReceipt(messageBody: string) {
+  console.log("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
   try {
     let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
     let purpose = messageWrapper.purpose;
     let joinTeam;
+    let joinLobby;
     switch (purpose) {
       case Purpose.CHAT_MESSAGE:
+        console.log("case: CHAT_MESSAGE");
         messages.value.push(messageBody);
         break;
       case Purpose.JOIN_TEAM_MESSAGE:
+        console.log("case: JOIN_TEAM_MESSAGE");
         joinTeam = JSON.parse(messageWrapper.data) as JoinTeamMessage;
+        console.log(
+          "case: JOIN_TEAM_MESSAGE after parsing lol",
+          joinTeam,
+          joinTeam.team
+        );
         if (
           joinTeam.team === "Alpha" &&
           !teamAlpha.value.includes(joinTeam.player)
         ) {
+          console.log("add memeber to alphe");
           teamAlpha.value.push(joinTeam.player);
           teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.player), 1);
         } else if (
           joinTeam.team === "Beta" &&
           !teamBeta.value.includes(joinTeam.player)
         ) {
+          console.log("add memeber to betah");
           teamBeta.value.push(joinTeam.player);
           teamAlpha.value.splice(teamAlpha.value.indexOf(joinTeam.player), 1);
         }
         break;
+      case Purpose.JOIN_LOBBY_MESSAGE:
+        console.log("case: JOIN_LOBBY_MESSAGE");
+        joinLobby = JSON.parse(messageWrapper.data) as JoinLobbyMessage;
+        members.value.push(joinLobby.player);
+        break;
       default:
-        console.log(messageBody);
+        console.log("no case found: ", messageBody);
     }
   } catch (error) {
-    console.error(error);
+    console.error("error: ", error);
   }
 }
 </script>

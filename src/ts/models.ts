@@ -73,6 +73,14 @@ export class JoinTeamMessage {
   }
 }
 
+export class JoinLobbyMessage {
+  player: string;
+
+  public constructor(player: string) {
+    this.player = player;
+  }
+}
+
 export class MessageWrapper {
   purpose: Purpose;
   data: string;
@@ -86,4 +94,5 @@ export class MessageWrapper {
 export enum Purpose {
   CHAT_MESSAGE = "CHAT_MESSAGE",
   JOIN_TEAM_MESSAGE = "JOIN_TEAM_MESSAGE",
+  JOIN_LOBBY_MESSAGE = "JOIN_LOBBY_MESSAGE",
 }
