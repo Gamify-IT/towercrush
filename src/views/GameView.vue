@@ -2,8 +2,8 @@
   <div class="content" id="websocket">
     <div class="row">
       <div class="col">
-        Lobby Name: <input v-model="lobbyName" /> Player Name:
-        <input v-model="playerName" />
+        Lobby Name: <input v-model="lobby" /> Player Name:
+        <input v-model="player" />
         <button class="btn btn-sm btn-info" @click="connectToLobby">
           Create/Join Lobby
         </button>
@@ -38,10 +38,10 @@ import { JoinTeamMessage, MessageWrapper, Purpose } from "@/ts/models";
 
 const messages = ref<Array<string>>([]);
 let stompClientGame = ref();
-let lobbyName = ref("");
+let lobby = ref("");
 let teamAlpha = ref<Array<string>>([]);
 let teamBeta = ref<Array<string>>([]);
-const playerName = ref("");
+const player = ref("");
 
 function connectToLobby() {
   const socket = new SockJS("/minigames/towercrush/api/v1/connect");
@@ -49,7 +49,7 @@ function connectToLobby() {
   stompClientGame.value.connect({}, () => {
     handleMessageReceipt("Connected");
     stompClientGame.value.subscribe(
-      "/topic/lobbies/" + lobbyName.value,
+      "/topic/lobbies/" + lobby.value,
       function (messageOutput: any) {
         handleMessageReceipt(messageOutput.body);
       }
@@ -57,15 +57,15 @@ function connectToLobby() {
   });
 }
 
-function joinTeam(teamName: string) {
+function joinTeam(team: string) {
   stompClientGame.value.send(
-    `/ws/lobby/${lobbyName.value}/join/team/${teamName}/player/${playerName.value}`
+    `/ws/lobby/${lobby.value}/join/team/${team}/player/${player.value}`
   );
 }
 
 function startLobby() {
   if (stompClientGame.value != null) {
-    stompClientGame.value.send("/ws/start/lobby/" + lobbyName.value);
+    stompClientGame.value.send("/ws/start/lobby/" + lobby.value);
   } else {
     alert("Please connect first");
   }
@@ -90,18 +90,18 @@ function handleMessageReceipt(messageBody: string) {
       case Purpose.JOIN_TEAM_MESSAGE:
         joinTeam = JSON.parse(messageWrapper.data) as JoinTeamMessage;
         if (
-          joinTeam.teamName === "Alpha" &&
-          !teamAlpha.value.includes(joinTeam.playerName)
+          joinTeam.team === "Alpha" &&
+          !teamAlpha.value.includes(joinTeam.player)
         ) {
-          teamAlpha.value.push(joinTeam.playerName);
-          teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.playerName), 1);
+          teamAlpha.value.push(joinTeam.player);
+          teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.player), 1);
         } else if (
-          joinTeam.teamName === "Beta" &&
-          !teamBeta.value.includes(joinTeam.playerName)
+          joinTeam.team === "Beta" &&
+          !teamBeta.value.includes(joinTeam.player)
         ) {
-          teamBeta.value.push(joinTeam.playerName);
+          teamBeta.value.push(joinTeam.player);
           teamAlpha.value.splice(
-            teamAlpha.value.indexOf(joinTeam.playerName),
+            teamAlpha.value.indexOf(joinTeam.player),
             1
           );
         }
