@@ -64,12 +64,12 @@ export class GameResultDTO {
 }
 
 export class JoinTeamMessage {
-  teamName: string;
-  playerName: string;
+  team: string;
+  player: string;
 
-  public constructor(teamName: string, playerName: string) {
-    this.teamName = teamName;
-    this.playerName = playerName;
+  public constructor(team: string, player: string) {
+    this.team = team;
+    this.player = player;
   }
 }
 

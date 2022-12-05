@@ -2,19 +2,16 @@
   <div class="content" id="websocket">
     <div class="row">
       <div class="col">
-        Lobby Name: <input v-model="lobbyName" /> Player Name:
-        <input v-model="playerName" />
-        <button class="btn btn-sm btn-info" @click="connectGame">
-          Create game
+        Lobby Name: <input v-model="lobby" /> Player Name:
+        <input v-model="player" />
+        <button class="btn btn-sm btn-info" @click="connectToLobby">
+          Create/Join Lobby
         </button>
-        <button class="btn btn-sm btn-success" @click="startTaskGame">
-          Start game
+        <button class="btn btn-sm btn-success" @click="startLobby">
+          Start Lobby (wip)
         </button>
-        <button class="btn btn-sm btn-danger" @click="stopTaskGame">
-          Stop game
-        </button>
-        <button class="btn btn-sm btn-primary" @click="disconnectGame">
-          Close game
+        <button class="btn btn-sm btn-primary" @click="disconnectFromLobby">
+          Leave Lobby
         </button>
       </div>
       <div class="row">
@@ -41,13 +38,47 @@ import { JoinTeamMessage, MessageWrapper, Purpose } from "@/ts/models";
 
 const messages = ref<Array<string>>([]);
 let stompClientGame = ref();
-let lobbyName = ref("");
+let lobby = ref("");
 let teamAlpha = ref<Array<string>>([]);
 let teamBeta = ref<Array<string>>([]);
-const playerName = ref("");
+const player = ref("");
+
+function connectToLobby() {
+  const socket = new SockJS("/minigames/towercrush/api/v1/connect");
+  stompClientGame.value = Stomp.over(socket);
+  stompClientGame.value.connect({}, () => {
+    handleMessageReceipt("Connected");
+    stompClientGame.value.subscribe(
+      "/topic/lobbies/" + lobby.value,
+      function (messageOutput: any) {
+        handleMessageReceipt(messageOutput.body);
+      }
+    );
+  });
+}
+
+function joinTeam(team: string) {
+  stompClientGame.value.send(
+    `/ws/lobby/${lobby.value}/join/team/${team}/player/${player.value}`
+  );
+}
+
+function startLobby() {
+  if (stompClientGame.value != null) {
+    stompClientGame.value.send("/ws/start/lobby/" + lobby.value);
+  } else {
+    alert("Please connect first");
+  }
+}
+
+function disconnectFromLobby() {
+  if (stompClientGame.value != null) {
+    stompClientGame.value.disconnect();
+  }
+  handleMessageReceipt("Disconnected");
+}
 
 function handleMessageReceipt(messageBody: string) {
-  console.log("idk remove this one:" + messageBody);
   try {
     let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
     let purpose = messageWrapper.purpose;
@@ -59,20 +90,17 @@ function handleMessageReceipt(messageBody: string) {
       case Purpose.JOIN_TEAM_MESSAGE:
         joinTeam = JSON.parse(messageWrapper.data) as JoinTeamMessage;
         if (
-          joinTeam.teamName === "Alpha" &&
-          !teamAlpha.value.includes(joinTeam.playerName)
+          joinTeam.team === "Alpha" &&
+          !teamAlpha.value.includes(joinTeam.player)
         ) {
-          teamAlpha.value.push(joinTeam.playerName);
-          teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.playerName), 1);
+          teamAlpha.value.push(joinTeam.player);
+          teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.player), 1);
         } else if (
-          joinTeam.teamName === "Beta" &&
-          !teamBeta.value.includes(joinTeam.playerName)
+          joinTeam.team === "Beta" &&
+          !teamBeta.value.includes(joinTeam.player)
         ) {
-          teamBeta.value.push(joinTeam.playerName);
-          teamAlpha.value.splice(
-            teamAlpha.value.indexOf(joinTeam.playerName),
-            1
-          );
+          teamBeta.value.push(joinTeam.player);
+          teamAlpha.value.splice(teamAlpha.value.indexOf(joinTeam.player), 1);
         }
         break;
       default:
@@ -81,55 +109,6 @@ function handleMessageReceipt(messageBody: string) {
   } catch (error) {
     console.error(error);
   }
-}
-
-function connectGame() {
-  const socket = new SockJS("/minigames/towercrush/api/v1/connect");
-  stompClientGame.value = Stomp.over(socket);
-  stompClientGame.value.connect({}, () => {
-    handleMessageReceipt("Connected");
-    stompClientGame.value.subscribe(
-      "/topic/games/" + lobbyName.value,
-      function (messageOutput: any) {
-        handleMessageReceipt(messageOutput.body);
-      },
-      { type: "" }
-    );
-  });
-}
-
-function disconnectGame() {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.disconnect();
-  }
-  handleMessageReceipt("Disconnected");
-}
-
-function startTaskGame() {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.send("/ws/start/lobbyName/" + lobbyName.value);
-  } else {
-    alert("Please connect first");
-  }
-}
-
-function stopTaskGame() {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.send("/ws/stop/lobbyName/" + lobbyName.value);
-  } else {
-    alert("Please connect first");
-  }
-}
-
-function joinTeam(teamName: string) {
-  stompClientGame.value.send(
-    "/ws/lobbyName/" +
-      lobbyName.value +
-      "/team/" +
-      teamName +
-      "/player/" +
-      playerName.value
-  );
 }
 </script>
 
