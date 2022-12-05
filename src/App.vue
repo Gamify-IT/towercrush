@@ -4,8 +4,9 @@
       class="navbar navbar-expand-lg navbar-light bg-dark"
       aria-label="Navigation Bar"
     >
-      <a id="finite-game">Finite Quiz</a>
+      <a id="towercrush-game">Towercrush</a>
       <nav class="ms-auto" aria-label="Navigation Bar">
+        <dark-mode id="darkModeButtonApp"></dark-mode>
         <b-button
           class="nav-buttons"
           id="restart-button"
@@ -25,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import DarkMode from "@/components/DarkMode";
 import GameView from "@/views/GameView";
 
 function reloadPage() {
@@ -35,13 +37,14 @@ function closeGame() {
   window.parent.postMessage("CLOSE ME");
 }
 </script>
+
 <style scoped>
 .navbar {
   padding-left: 1vw;
   height: 7vh;
 }
 
-#finite-game {
+#towercrush-game {
   color: white;
 }
 
@@ -59,5 +62,33 @@ function closeGame() {
 #close-button:hover {
   border-color: #870c0c;
   background-color: #870c0c;
+}
+
+#darkModeButtonApp {
+  float: left;
+  margin-right: 1vw;
+  margin-top: 2px;
+}
+</style>
+
+<style>
+/* These are global variables for the dark mode, make sure to add local style to the scoped style above */
+:root {
+  --background-main: #ffffff;
+  --background-sub: #ffffff;
+  --border-main: #000000;
+  --border-sub: #000000;
+  --text-main: #222;
+  --element-size: 4vw;
+  --button-main: #2f2f2f;
+}
+
+:root.dark-theme {
+  --background-main: #1e1e1e;
+  --background-sub: #2d2d30;
+  --border-main: #1f1f1f;
+  --border-sub: #3f3f3f;
+  --text-main: #ddd;
+  --button-main: #ffffff;
 }
 </style>
