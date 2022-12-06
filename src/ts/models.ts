@@ -74,10 +74,10 @@ export class JoinTeamMessage {
 }
 
 export class JoinLobbyMessage {
-  player: string;
+  playerList: Array<string>;
 
-  public constructor(player: string) {
-    this.player = player;
+  public constructor(playerList: Array<string>) {
+    this.playerList = playerList;
   }
 }
 

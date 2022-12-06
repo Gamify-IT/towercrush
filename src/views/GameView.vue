@@ -7,6 +7,9 @@
         <button class="btn btn-sm btn-info" @click="connectToLobby">
           Create/Join Lobby
         </button>
+        <button class="btn btn-sm btn-info" @click="fetchLobbyData">
+          fetch lobby data
+        </button>
         <button class="btn btn-sm btn-success" @click="startLobby">
           Start Lobby (wip)
         </button>
@@ -27,7 +30,7 @@
       Messages: {{ messages }}<br />
       Team Alpha: {{ teamAlpha }}<br />
       Team Beta: {{ teamBeta }}<br />
-      Members: {{ members }}<br />
+      Members: {{ players }}<br />
     </div>
   </div>
 </template>
@@ -47,10 +50,11 @@ let stompClientGame = ref();
 let lobby = ref("");
 let teamAlpha = ref<Array<string>>([]);
 let teamBeta = ref<Array<string>>([]);
-let members = ref<Array<string>>([]);
+let players = ref<Array<string>>([]);
 const player = ref("");
 
 function connectToLobby() {
+  console.log("connect to lobby");
   const socket = new SockJS("/minigames/towercrush/api/v1/connect");
   stompClientGame.value = Stomp.over(socket);
   stompClientGame.value.connect(
@@ -58,13 +62,19 @@ function connectToLobby() {
     (messageOutput: any) => {
       handleMessageReceipt(messageOutput.body);
       stompClientGame.value.subscribe(
-        "/topic/lobbies/" + lobby.value,
+        "/user/topic/lobbies/" + lobby.value,
         function (messageOutput: any) {
           handleMessageReceipt(messageOutput.body);
         }
       );
     }
   );
+  stompClientGame.value.send(`/ws/get/infos/on/join/${lobby.value}`);
+}
+
+function fetchLobbyData() {
+  console.log("fetch lobby data");
+  stompClientGame.value.send(`/ws/get/infos/on/join/${lobby.value}`);
 }
 
 function joinTeam(team: string) {
@@ -89,7 +99,7 @@ function disconnectFromLobby() {
 }
 
 function handleMessageReceipt(messageBody: string) {
-  console.log("HELLOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+  console.log("handle received message!");
   try {
     let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
     let purpose = messageWrapper.purpose;
@@ -103,23 +113,16 @@ function handleMessageReceipt(messageBody: string) {
       case Purpose.JOIN_TEAM_MESSAGE:
         console.log("case: JOIN_TEAM_MESSAGE");
         joinTeam = JSON.parse(messageWrapper.data) as JoinTeamMessage;
-        console.log(
-          "case: JOIN_TEAM_MESSAGE after parsing lol",
-          joinTeam,
-          joinTeam.team
-        );
         if (
           joinTeam.team === "Alpha" &&
           !teamAlpha.value.includes(joinTeam.player)
         ) {
-          console.log("add memeber to alphe");
           teamAlpha.value.push(joinTeam.player);
           teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.player), 1);
         } else if (
           joinTeam.team === "Beta" &&
           !teamBeta.value.includes(joinTeam.player)
         ) {
-          console.log("add memeber to betah");
           teamBeta.value.push(joinTeam.player);
           teamAlpha.value.splice(teamAlpha.value.indexOf(joinTeam.player), 1);
         }
@@ -127,7 +130,8 @@ function handleMessageReceipt(messageBody: string) {
       case Purpose.JOIN_LOBBY_MESSAGE:
         console.log("case: JOIN_LOBBY_MESSAGE");
         joinLobby = JSON.parse(messageWrapper.data) as JoinLobbyMessage;
-        members.value.push(joinLobby.player);
+        players.value = joinLobby.playerList;
+        console.log("joined player:", joinLobby, players.value);
         break;
       default:
         console.log("no case found: ", messageBody);
