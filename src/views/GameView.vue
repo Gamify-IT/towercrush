@@ -35,88 +35,65 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import SockJS from "sockjs-client";
-import Stomp from "stompjs";
+import { ref, watch } from "vue";
 import {
   JoinLobbyMessage,
   JoinTeamMessage,
   MessageWrapper,
   Purpose,
 } from "@/ts/models";
+import * as websockets from "@/ts/websockets";
 
 const messages = ref<Array<string>>([]);
-let stompClientGame = ref();
-let lobby = ref("");
-let teamAlpha = ref<Array<string>>([]);
-let teamBeta = ref<Array<string>>([]);
-let players = ref<Array<string>>([]);
-const player = ref("");
-const playerUUID = ref("");
 
-function connect() {
-  console.log("connect to lobby");
-  return new Promise((resolve, reject) => {
-    stompClientGame.value = Stomp.over(
-      new SockJS("/minigames/towercrush/api/v1/connect")
-    );
-    playerUUID.value = generateUUID();
-    console.log("players uuid was: ", playerUUID.value);
-    stompClientGame.value.connect(
-      { player: player.value, lobby: lobby.value, userUUID: playerUUID.value },
-      () => resolve(stompClientGame.value)
-    );
-  });
-}
+let lobby = ref(""); // start
+let teamAlpha = ref<Array<string>>([]); //lobby (game)
+let teamBeta = ref<Array<string>>([]); //lobby (game)
+let players = ref<Array<string>>([]); //lobby (game)
+const player = ref(""); //temp
 
 function connectToLobby() {
-  connect()
+  websockets
+    .connect(lobby.value, player.value)
     .then(() => {
-      stompClientGame.value.subscribe(
-        "/user/queue/newMember",
-        function (messageOutput: any) {
-          handleMessageReceipt(messageOutput.body);
-        }
-      );
+      subscribePersonalQueue();
     })
     .then(() => {
-      stompClientGame.value.subscribe(
-        "/topic/lobby/" + lobby.value,
-        function (messageOutput: any) {
-          handleMessageReceipt(messageOutput.body);
-        }
-      );
+      subscribeLobbyTopic();
+    })
+    .then(() => {
+      fetchLobbyData();
     });
 }
 
+function subscribePersonalQueue() {
+  websockets.subscribePersonalQueue();
+}
+
+function subscribeLobbyTopic() {
+  websockets.subscribeLobbyTopic(lobby.value);
+}
+
 function fetchLobbyData() {
-  console.log("fetch lobby data");
-  stompClientGame.value.send(`/ws/get/infos/on/join/${lobby.value}`);
+  websockets.fetchLobbyData(lobby.value);
 }
 
 function joinTeam(team: string) {
-  stompClientGame.value.send(
-    `/ws/lobby/${lobby.value}/join/team/${team}/player/${player.value}`
-  );
+  websockets.joinTeam(team, lobby.value, player.value);
 }
 
 function startLobby() {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.send("/ws/start/lobby/" + lobby.value);
-  } else {
-    alert("Please connect first");
-  }
+  websockets.startLobby(lobby.value);
 }
 
 function disconnectFromLobby() {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.disconnect();
-  }
-  handleMessageReceipt("Disconnected");
+  websockets.disconnectFromLobby();
 }
 
-function handleMessageReceipt(messageBody: string) {
-  console.log("handle received message!");
+watch(websockets.message, handleMessageReceipt);
+
+function handleMessageReceipt(messageBody: string, name: string) {
+  console.log("handle received message!", messageBody, name);
   try {
     let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
     let purpose = messageWrapper.purpose;
@@ -154,28 +131,8 @@ function handleMessageReceipt(messageBody: string) {
         console.log("no case found: ", messageBody);
     }
   } catch (error) {
-    console.error("error: ", error);
+    //console.error("error: ", error);
   }
-}
-//helpmethode remove it when implement uuid from cookie
-function generateUUID() {
-  var d = new Date().getTime();
-  var d2 =
-    (typeof performance !== "undefined" &&
-      performance.now &&
-      performance.now() * 1000) ||
-    0;
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16;
-    if (d > 0) {
-      r = (d + r) % 16 | 0;
-      d = Math.floor(d / 16);
-    } else {
-      r = (d2 + r) % 16 | 0;
-      d2 = Math.floor(d2 / 16);
-    }
-    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-  });
 }
 </script>
 
