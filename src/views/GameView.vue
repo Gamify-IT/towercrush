@@ -52,24 +52,41 @@ let teamAlpha = ref<Array<string>>([]);
 let teamBeta = ref<Array<string>>([]);
 let players = ref<Array<string>>([]);
 const player = ref("");
+const playerUUID = ref("");
+
+function connect() {
+  console.log("connect to lobby");
+  return new Promise((resolve, reject) => {
+    stompClientGame.value = Stomp.over(
+      new SockJS("/minigames/towercrush/api/v1/connect")
+    );
+    playerUUID.value = generateUUID();
+    console.log("players uuid was: ", playerUUID.value);
+    stompClientGame.value.connect(
+      { player: player.value, lobby: lobby.value, userUUID: playerUUID.value },
+      () => resolve(stompClientGame.value)
+    );
+  });
+}
 
 function connectToLobby() {
-  console.log("connect to lobby");
-  const socket = new SockJS("/minigames/towercrush/api/v1/connect");
-  stompClientGame.value = Stomp.over(socket);
-  stompClientGame.value.connect(
-    { player: player.value, lobby: lobby.value },
-    (messageOutput: any) => {
-      handleMessageReceipt(messageOutput.body);
+  connect()
+    .then(() => {
       stompClientGame.value.subscribe(
-        "/user/topic/lobbies/" + lobby.value,
+        "/user/queue/newMember",
         function (messageOutput: any) {
           handleMessageReceipt(messageOutput.body);
         }
       );
-    }
-  );
-  stompClientGame.value.send(`/ws/get/infos/on/join/${lobby.value}`);
+    })
+    .then(() => {
+      stompClientGame.value.subscribe(
+        "/topic/lobby/" + lobby.value,
+        function (messageOutput: any) {
+          handleMessageReceipt(messageOutput.body);
+        }
+      );
+    });
 }
 
 function fetchLobbyData() {
@@ -139,6 +156,26 @@ function handleMessageReceipt(messageBody: string) {
   } catch (error) {
     console.error("error: ", error);
   }
+}
+//helpmethode remove it when implement uuid from cookie
+function generateUUID() {
+  var d = new Date().getTime();
+  var d2 =
+    (typeof performance !== "undefined" &&
+      performance.now &&
+      performance.now() * 1000) ||
+    0;
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16;
+    if (d > 0) {
+      r = (d + r) % 16 | 0;
+      d = Math.floor(d / 16);
+    } else {
+      r = (d2 + r) % 16 | 0;
+      d2 = Math.floor(d2 / 16);
+    }
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
 }
 </script>
 
