@@ -81,6 +81,46 @@ export class JoinLobbyMessage {
   }
 }
 
+export class DeveloperMessage {
+  lobbyList: Lobby[];
+
+  public constructor(lobbyList: Lobby[]) {
+    this.lobbyList = lobbyList;
+  }
+}
+
+export class Lobby {
+  teamA: [];
+  teamB: [];
+  players: Player[];
+  createdAt: string;
+  lobbyName: string;
+
+  public constructor(
+    teamA: [],
+    teamB: [],
+    players: Player[],
+    createdAt: string,
+    lobbyName: string
+  ) {
+    this.teamA = teamA;
+    this.teamB = teamB;
+    this.players = players;
+    this.createdAt = createdAt;
+    this.lobbyName = lobbyName;
+  }
+}
+
+export class Player {
+  playerName: string;
+  key: string;
+
+  public constructor(playerName: string, key: string) {
+    this.playerName = playerName;
+    this.key = key;
+  }
+}
+
 export class MessageWrapper {
   purpose: Purpose;
   data: string;
@@ -95,6 +135,7 @@ export enum Purpose {
   CHAT_MESSAGE = "CHAT_MESSAGE",
   JOIN_TEAM_MESSAGE = "JOIN_TEAM_MESSAGE",
   JOIN_LOBBY_MESSAGE = "JOIN_LOBBY_MESSAGE",
+  DEVELOPER_MESSAGE = "DEVELOPER_MESSAGE",
 }
 
 export enum GameState {

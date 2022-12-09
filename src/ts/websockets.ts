@@ -14,6 +14,9 @@ export function removeHandleFunction(functionParam: any) {
     filterFunction != functionParam;
   });
 }
+export function clearHandlerFunctions() {
+  handleFunctionList = Array<any>();
+}
 
 export function connect(lobby: string, player: string) {
   console.log("connect to lobby");
@@ -25,6 +28,19 @@ export function connect(lobby: string, player: string) {
     console.log("players uuid was: ", playerUUID.value);
     stompClientGame.value.connect(
       { player: player, lobby: lobby, userUUID: playerUUID.value },
+      () => resolve(stompClientGame.value)
+    );
+  });
+}
+
+export function connectDeveloper() {
+  console.log("connect to developer");
+  return new Promise((resolve, reject) => {
+    stompClientGame.value = Stomp.over(
+      new SockJS("/minigames/towercrush/api/v1/connect")
+    );
+    stompClientGame.value.connect(
+      { player: "developer", lobby: "developer", userUUID: "developer" },
       () => resolve(stompClientGame.value)
     );
   });
@@ -44,6 +60,17 @@ export function subscribePersonalQueue() {
 export function subscribeLobbyTopic(lobby: string) {
   stompClientGame.value.subscribe(
     "/topic/lobby/" + lobby,
+    function (messageOutput: any) {
+      for (const handleFunction of handleFunctionList) {
+        handleFunction(messageOutput.body);
+      }
+    }
+  );
+}
+
+export function subscribeDeveloperTopic() {
+  stompClientGame.value.subscribe(
+    "/topic/developer/",
     function (messageOutput: any) {
       for (const handleFunction of handleFunctionList) {
         handleFunction(messageOutput.body);
@@ -72,22 +99,28 @@ export function startLobby(lobby: string) {
   }
 }
 
-export function disconnectFromLobby(lobby: string) {
+export function disconnectFromLobby(
+  lobby: string,
+  handleFunctionToRemove: any
+) {
   if (stompClientGame.value != null) {
-    stompClientGame.value.send(
+    /*stompClientGame.value.send(
       `/ws/lobby/${lobby}/disconnect/player/${playerUUID.value}`
     );
-    console.log("removed player from list");
+    console.log("removed player from list");*/
     stompClientGame.value.disconnect(function () {
       console.log("STOMP client succesfully disconnected.");
+      removeHandleFunction(handleFunctionToRemove);
     });
   }
 }
 
-function disconnectCallback(messageBody: any) {
-  console.log("disconnect callback, body: ", messageBody);
-  for (const handleFunction of handleFunctionList) {
-    handleFunction(messageBody);
+export function clearDeveloperLobby() {
+  if (stompClientGame.value != null) {
+    stompClientGame.value.disconnect(function () {
+      console.log("developer STOMP client succesfully disconnected.");
+      handleFunctionList = Array<any>();
+    });
   }
 }
 

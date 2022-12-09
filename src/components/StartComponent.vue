@@ -7,6 +7,9 @@
         <button class="btn btn-sm btn-info" @click="connectToLobby">
           Create/Join Lobby
         </button>
+        <button class="btn btn-sm btn-info" @click="connectToDeveloperLobby">
+          Create/Join Lobby
+        </button>
       </div>
     </div>
   </div>
@@ -23,6 +26,7 @@ const emit = defineEmits<{
 }>();
 
 function connectToLobby() {
+  websockets.clearDeveloperLobby();
   websockets
     .connect(lobby.value, player.value)
     .then(() => {
@@ -35,6 +39,12 @@ function connectToLobby() {
       emit("startGame", lobby.value, player.value);
     });
 }
+
+function connectToDeveloperLobby() {
+  websockets.connectDeveloper().then(() => {
+    websockets.subscribeDeveloperTopic();
+  });
+}
 </script>
 
 <style scoped>
@@ -44,7 +54,7 @@ div {
 
 .content {
   background-color: var(--background-main);
-  height: 93vh;
+  height: 46.5vh;
   max-width: 100vw;
   padding: 1vw;
   color: var(--text-main);

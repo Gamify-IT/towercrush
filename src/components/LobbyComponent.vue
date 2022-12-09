@@ -27,7 +27,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits, onBeforeUnmount } from "vue";
 import {
   JoinLobbyMessage,
   JoinTeamMessage,
@@ -63,9 +63,14 @@ function startLobby() {
 }
 
 function disconnectFromLobby() {
-  websockets.disconnectFromLobby(props.lobby);
+  websockets.disconnectFromLobby(props.lobby, handleMessageReceipt);
   emit("disconnectLobby");
 }
+
+onBeforeUnmount(() => {
+  alert("refreshed/closed");
+  websockets.disconnectFromLobby(props.lobby, handleMessageReceipt);
+});
 
 function handleMessageReceipt(messageBody: string) {
   console.log("handle received message!", messageBody);
