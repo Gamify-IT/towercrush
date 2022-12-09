@@ -4,13 +4,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import * as websockets from "@/ts/websockets";
 import { DeveloperMessage, MessageWrapper, Purpose } from "@/ts/models";
 const lobbies = ref();
 
-websockets.clearHandlerFunctions();
-websockets.addHandleFunction(handleMessageReceipt);
+onMounted(() => {
+  websockets.clearHandlerFunctions();
+  websockets.addHandleFunction(handleMessageReceipt);
+});
 
 function handleMessageReceipt(messageBody: string) {
   console.log("handle received developer message!", messageBody);

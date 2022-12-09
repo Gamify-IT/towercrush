@@ -7,14 +7,17 @@ const playerUUID = ref("");
 export let handleFunctionList = Array<any>();
 
 export function addHandleFunction(functionParam: any) {
+  console.log("add new handler function");
   handleFunctionList = [...handleFunctionList, functionParam];
 }
 export function removeHandleFunction(functionParam: any) {
+  console.log("remove one handler functions");
   handleFunctionList = handleFunctionList.filter((filterFunction) => {
     filterFunction != functionParam;
   });
 }
 export function clearHandlerFunctions() {
+  console.log("clear handler functions");
   handleFunctionList = Array<any>();
 }
 
@@ -72,7 +75,9 @@ export function subscribeDeveloperTopic() {
   stompClientGame.value.subscribe(
     "/topic/developer/",
     function (messageOutput: any) {
+      console.log("developer callback");
       for (const handleFunction of handleFunctionList) {
+        console.log("try handler function", handleFunction);
         handleFunction(messageOutput.body);
       }
     }
