@@ -96,3 +96,10 @@ export enum Purpose {
   JOIN_TEAM_MESSAGE = "JOIN_TEAM_MESSAGE",
   JOIN_LOBBY_MESSAGE = "JOIN_LOBBY_MESSAGE",
 }
+
+export enum GameState {
+  START,
+  LOBBY,
+  GAME,
+  RESULTS,
+}

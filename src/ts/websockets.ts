@@ -1,10 +1,19 @@
-import { ref } from "vue";
+import { defineEmits, ref } from "vue";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
 const stompClientGame = ref();
 const playerUUID = ref("");
-export const message = ref("");
+export let handleFunctionList = Array<any>();
+
+export function addHandleFunction(functionParam: any) {
+  handleFunctionList = [...handleFunctionList, functionParam];
+}
+export function removeHandleFunction(functionParam: any) {
+  handleFunctionList = handleFunctionList.filter((filterFunction) => {
+    filterFunction != functionParam;
+  });
+}
 
 export function connect(lobby: string, player: string) {
   console.log("connect to lobby");
@@ -25,7 +34,9 @@ export function subscribePersonalQueue() {
   stompClientGame.value.subscribe(
     "/user/queue/private/messages",
     function (messageOutput: any) {
-      message.value = messageOutput.body;
+      for (const handleFunction of handleFunctionList) {
+        handleFunction(messageOutput.body);
+      }
     }
   );
 }
@@ -34,7 +45,9 @@ export function subscribeLobbyTopic(lobby: string) {
   stompClientGame.value.subscribe(
     "/topic/lobby/" + lobby,
     function (messageOutput: any) {
-      message.value = messageOutput.body;
+      for (const handleFunction of handleFunctionList) {
+        handleFunction(messageOutput.body);
+      }
     }
   );
 }
@@ -59,11 +72,23 @@ export function startLobby(lobby: string) {
   }
 }
 
-export function disconnectFromLobby() {
+export function disconnectFromLobby(lobby: string) {
   if (stompClientGame.value != null) {
-    stompClientGame.value.disconnect();
+    stompClientGame.value.send(
+      `/ws/lobby/${lobby}/disconnect/player/${playerUUID.value}`
+    );
+    console.log("removed player from list");
+    stompClientGame.value.disconnect(function () {
+      console.log("STOMP client succesfully disconnected.");
+    });
   }
-  message.value = "Disconnected";
+}
+
+function disconnectCallback(messageBody: any) {
+  console.log("disconnect callback, body: ", messageBody);
+  for (const handleFunction of handleFunctionList) {
+    handleFunction(messageBody);
+  }
 }
 
 //helpmethode remove it when implement uuid from cookie
