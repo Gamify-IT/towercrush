@@ -4,11 +4,17 @@
       <div class="col">
         Lobby Name: <input v-model="lobby" /> Player Name:
         <input v-model="player" />
+        <br />
         <button class="btn btn-sm btn-info" @click="connectToLobby">
           Create/Join Lobby
         </button>
-        <button class="btn btn-sm btn-info" @click="connectToDeveloperLobby">
-          Create/Join Lobby
+        <br />
+        <button
+          class="btn btn-sm btn-warning"
+          @click="connectToDeveloperLobby"
+          :disabled="joinedDevs"
+        >
+          Join Dev
         </button>
       </div>
     </div>
@@ -20,11 +26,17 @@ import * as websockets from "@/ts/websockets";
 
 const lobby = ref("");
 const player = ref(""); //temp
-
+const joinedDevs = ref(false);
+/**
+ * emits, methods from the GameView (parent)
+ */
 const emit = defineEmits<{
-  (e: "startGame", lobby: string, player: string): void;
+  (e: "setStateToLobby", lobby: string, player: string): void;
 }>();
 
+/**
+ * This methods connects and subscribes to the fitting paths if a player wants to join a lobby
+ */
 function connectToLobby() {
   websockets.clearDeveloperLobby();
   websockets
@@ -36,14 +48,23 @@ function connectToLobby() {
       websockets.subscribeLobbyTopic(lobby.value);
     })
     .then(() => {
-      emit("startGame", lobby.value, player.value);
+      console.log("emit method setStateToLobby");
+      emit("setStateToLobby", lobby.value, player.value);
     });
 }
 
+/**
+ * This method connects and subscribes to the fitting paths if a developer wants to get lobby infos
+ */
 function connectToDeveloperLobby() {
-  websockets.connectDeveloper().then(() => {
-    websockets.subscribeDeveloperTopic();
-  });
+  websockets
+    .connectDeveloper()
+    .then(() => {
+      websockets.subscribeDeveloperTopic();
+    })
+    .then(() => {
+      joinedDevs.value = true;
+    });
 }
 </script>
 

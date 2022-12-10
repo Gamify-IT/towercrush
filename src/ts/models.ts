@@ -73,7 +73,7 @@ export class JoinTeamMessage {
   }
 }
 
-export class JoinLobbyMessage {
+export class JoinLeaveLobbyMessage {
   playerList: Array<string>;
 
   public constructor(playerList: Array<string>) {

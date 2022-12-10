@@ -1,11 +1,11 @@
 <template>
   <div v-if="currentState === GameState.START">
-    <StartComponent @startGame="startLobby"></StartComponent>
+    <StartComponent @setStateToLobby="setStateToLobby"></StartComponent>
     <DeveloperComponent></DeveloperComponent>
   </div>
   <div v-if="currentState === GameState.LOBBY">
     <LobbyComponent
-      @disconnectLobby="disconnectLobby"
+      @setStateToStart="setStateToStart"
       :player="player"
       :lobby="lobby"
     ></LobbyComponent>
@@ -22,14 +22,22 @@ const currentState = ref(GameState.START);
 const lobby = ref("");
 const player = ref("");
 
-function startLobby(lobbyParam: string, playerParam: string) {
+/**
+ * This method changes the state to Lobby
+ * @param lobbyParam
+ * @param playerParam
+ */
+function setStateToLobby(lobbyParam: string, playerParam: string) {
   console.log("change state to lobby!");
   lobby.value = lobbyParam;
   player.value = playerParam;
   changeState(GameState.LOBBY);
 }
 
-function disconnectLobby() {
+/**
+ * This method changes the state to start
+ */
+function setStateToStart() {
   console.log("change state to start!");
   lobby.value = "";
   player.value = "";

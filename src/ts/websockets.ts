@@ -109,10 +109,6 @@ export function disconnectFromLobby(
   handleFunctionToRemove: any
 ) {
   if (stompClientGame.value != null) {
-    /*stompClientGame.value.send(
-      `/ws/lobby/${lobby}/disconnect/player/${playerUUID.value}`
-    );
-    console.log("removed player from list");*/
     stompClientGame.value.disconnect(function () {
       console.log("STOMP client succesfully disconnected.");
       removeHandleFunction(handleFunctionToRemove);
