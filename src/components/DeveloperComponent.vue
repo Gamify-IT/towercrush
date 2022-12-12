@@ -33,6 +33,9 @@ function handleMessageReceipt(messageBody: string) {
         lobbies.value = (
           JSON.parse(messageWrapper.data) as DeveloperMessage
         ).lobbyList;
+        for (let element of lobbies.value) {
+          element.players = element.players.map((player: any) => player.player);
+        }
         break;
       default:
         console.log("no case found: ", messageBody);

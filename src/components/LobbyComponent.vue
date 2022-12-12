@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
 import {
-  JoinLeaveLobbyMessage,
+  UpdateLobbyMessage,
   JoinTeamMessage,
   MessageWrapper,
   Purpose,
@@ -109,7 +109,7 @@ function handleMessageReceipt(messageBody: string) {
       case Purpose.JOIN_TEAM_MESSAGE:
         handleJoinTeamMessage(messageWrapper);
         break;
-      case Purpose.JOIN_LOBBY_MESSAGE:
+      case Purpose.UPDATE_LOBBY_MESSAGE:
         handleJoinLeaveLobbyMessage(messageWrapper);
         break;
       default:
@@ -139,8 +139,11 @@ function handleJoinTeamMessage(messageWrapper: MessageWrapper) {
 }
 
 function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
-  let joinLobby = JSON.parse(messageWrapper.data) as JoinLeaveLobbyMessage;
-  players.value = joinLobby.playerList;
+  let updatedLobby = JSON.parse(messageWrapper.data) as UpdateLobbyMessage;
+  let updatedPlayer = updatedLobby.updatedLobby.players.map(
+    (player) => player.player
+  );
+  players.value = updatedPlayer;
 }
 </script>
 
