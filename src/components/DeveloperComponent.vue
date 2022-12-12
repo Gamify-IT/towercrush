@@ -5,17 +5,23 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import * as websockets from "@/ts/websockets";
 import { DeveloperMessage, MessageWrapper, Purpose } from "@/ts/models";
 const lobbies = ref();
 
 /**
- * Everytime this components mounts this method clears the handler functions
+ * Everytime this components mounts this method adds the local handler function
  */
 onMounted(() => {
-  websockets.clearHandlerFunctions();
   websockets.addHandleFunction(handleMessageReceipt);
+});
+
+/**
+ * Everytime this components unmounts this method removes the local handler function
+ */
+onBeforeUnmount(() => {
+  websockets.removeHandleFunction(handleMessageReceipt);
 });
 
 /**
@@ -33,6 +39,9 @@ function handleMessageReceipt(messageBody: string) {
         lobbies.value = (
           JSON.parse(messageWrapper.data) as DeveloperMessage
         ).lobbyList;
+        for (let element of lobbies.value) {
+          element.players = element.players.map((player: any) => player.player);
+        }
         break;
       default:
         console.log("no case found: ", messageBody);

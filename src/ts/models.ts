@@ -73,11 +73,11 @@ export class JoinTeamMessage {
   }
 }
 
-export class JoinLeaveLobbyMessage {
-  playerList: Array<string>;
+export class UpdateLobbyMessage {
+  updatedLobby: Lobby;
 
-  public constructor(playerList: Array<string>) {
-    this.playerList = playerList;
+  public constructor(updatedLobby: Lobby) {
+    this.updatedLobby = updatedLobby;
   }
 }
 
@@ -112,11 +112,11 @@ export class Lobby {
 }
 
 export class Player {
-  playerName: string;
+  player: string;
   key: string;
 
   public constructor(playerName: string, key: string) {
-    this.playerName = playerName;
+    this.player = playerName;
     this.key = key;
   }
 }
@@ -134,7 +134,7 @@ export class MessageWrapper {
 export enum Purpose {
   CHAT_MESSAGE = "CHAT_MESSAGE",
   JOIN_TEAM_MESSAGE = "JOIN_TEAM_MESSAGE",
-  JOIN_LOBBY_MESSAGE = "JOIN_LOBBY_MESSAGE",
+  UPDATE_LOBBY_MESSAGE = "UPDATE_LOBBY_MESSAGE",
   DEVELOPER_MESSAGE = "DEVELOPER_MESSAGE",
 }
 
