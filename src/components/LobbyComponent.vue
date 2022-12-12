@@ -55,11 +55,17 @@ const emit = defineEmits<{
 }>();
 
 /**
- * Everytime this components mounts this method adds the handler functions/ fetches lobby data
+ * Everytime this components mounts this method adds the local handler function
  */
 onMounted(() => {
   websockets.addHandleFunction(handleMessageReceipt);
-  websockets.fetchLobbyData(props.lobby);
+});
+
+/**
+ * Everytime this components unmounts this method removes the local handler function
+ */
+onBeforeUnmount(() => {
+  websockets.removeHandleFunction(handleMessageReceipt);
 });
 
 /**
@@ -84,13 +90,6 @@ function disconnectFromLobby() {
   websockets.disconnectFromLobby(props.lobby, handleMessageReceipt);
   emit("setStateToStart");
 }
-
-/**
- * Before someone closes/refreshes the side, that connection closes (not sure if necessary)
- */
-onBeforeUnmount(() => {
-  websockets.disconnectFromLobby(props.lobby, handleMessageReceipt);
-});
 
 /**
  * This method handles all incoming messages from the backend

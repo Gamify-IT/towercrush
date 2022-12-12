@@ -10,15 +10,12 @@ export function addHandleFunction(functionParam: any) {
   console.log("add new handler function");
   handleFunctionList = [...handleFunctionList, functionParam];
 }
+
 export function removeHandleFunction(functionParam: any) {
   console.log("remove one handler functions");
   handleFunctionList = handleFunctionList.filter((filterFunction) => {
-    filterFunction != functionParam;
+    filterFunction !== functionParam;
   });
-}
-export function clearHandlerFunctions() {
-  console.log("clear handler functions");
-  handleFunctionList = Array<any>();
 }
 
 export function connect(lobby: string, player: string) {
