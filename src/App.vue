@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import DarkMode from "@/components/DarkMode";
+import DarkMode from "@/components/DarkModeComponent.vue";
 import GameView from "@/views/GameView";
 
 function reloadPage() {

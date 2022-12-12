@@ -1,136 +1,52 @@
 <template>
-  <div class="content" id="websocket">
-    <div class="row">
-      <div class="col">
-        Lobby Name: <input v-model="lobby" /> Player Name:
-        <input v-model="player" />
-        <button class="btn btn-sm btn-info" @click="connectToLobby">
-          Create/Join Lobby
-        </button>
-        <button class="btn btn-sm btn-success" @click="startLobby">
-          Start Lobby (wip)
-        </button>
-        <button class="btn btn-sm btn-primary" @click="disconnectFromLobby">
-          Leave Lobby
-        </button>
-      </div>
-      <div class="row">
-        <div class="col">
-          <button class="btn btn-sm btn-danger" @click="joinTeam('Alpha')">
-            Join Alpha
-          </button>
-          <button class="btn btn-sm btn-primary" @click="joinTeam('Beta')">
-            Join Beta
-          </button>
-        </div>
-      </div>
-      Messages: {{ messages }}<br />
-      Team Alpha: {{ teamAlpha }}<br />
-      Team Beta: {{ teamBeta }}<br />
-    </div>
+  <div v-if="currentState === GameState.START">
+    <StartComponent @setStateToLobby="setStateToLobby"></StartComponent>
+    <DeveloperComponent></DeveloperComponent>
+  </div>
+  <div v-if="currentState === GameState.LOBBY">
+    <LobbyComponent
+      @setStateToStart="setStateToStart"
+      :player="player"
+      :lobby="lobby"
+    ></LobbyComponent>
   </div>
 </template>
 <script setup lang="ts">
+import { GameState } from "@/ts/models";
+import StartComponent from "@/components/StartComponent";
+import LobbyComponent from "@/components/LobbyComponent";
+import DeveloperComponent from "@/components/DeveloperComponent";
 import { ref } from "vue";
-import SockJS from "sockjs-client";
-import Stomp from "stompjs";
-import { JoinTeamMessage, MessageWrapper, Purpose } from "@/ts/models";
 
-const messages = ref<Array<string>>([]);
-let stompClientGame = ref();
-let lobby = ref("");
-let teamAlpha = ref<Array<string>>([]);
-let teamBeta = ref<Array<string>>([]);
+const currentState = ref(GameState.START);
+const lobby = ref("");
 const player = ref("");
 
-function connectToLobby() {
-  const socket = new SockJS("/minigames/towercrush/api/v1/connect");
-  stompClientGame.value = Stomp.over(socket);
-  stompClientGame.value.connect({}, () => {
-    handleMessageReceipt("Connected");
-    stompClientGame.value.subscribe(
-      "/topic/lobbies/" + lobby.value,
-      function (messageOutput: any) {
-        handleMessageReceipt(messageOutput.body);
-      }
-    );
-  });
+/**
+ * This method changes the state to Lobby
+ * @param lobbyParam
+ * @param playerParam
+ */
+function setStateToLobby(lobbyParam: string, playerParam: string) {
+  console.log("change state to lobby!");
+  lobby.value = lobbyParam;
+  player.value = playerParam;
+  changeState(GameState.LOBBY);
 }
 
-function joinTeam(team: string) {
-  stompClientGame.value.send(
-    `/ws/lobby/${lobby.value}/join/team/${team}/player/${player.value}`
-  );
+/**
+ * This method changes the state to start
+ */
+function setStateToStart() {
+  console.log("change state to start!");
+  lobby.value = "";
+  player.value = "";
+  changeState(GameState.START);
 }
 
-function startLobby() {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.send("/ws/start/lobby/" + lobby.value);
-  } else {
-    alert("Please connect first");
-  }
-}
-
-function disconnectFromLobby() {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.disconnect();
-  }
-  handleMessageReceipt("Disconnected");
-}
-
-function handleMessageReceipt(messageBody: string) {
-  try {
-    let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
-    let purpose = messageWrapper.purpose;
-    let joinTeam;
-    switch (purpose) {
-      case Purpose.CHAT_MESSAGE:
-        messages.value.push(messageBody);
-        break;
-      case Purpose.JOIN_TEAM_MESSAGE:
-        joinTeam = JSON.parse(messageWrapper.data) as JoinTeamMessage;
-        if (
-          joinTeam.team === "Alpha" &&
-          !teamAlpha.value.includes(joinTeam.player)
-        ) {
-          teamAlpha.value.push(joinTeam.player);
-          teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.player), 1);
-        } else if (
-          joinTeam.team === "Beta" &&
-          !teamBeta.value.includes(joinTeam.player)
-        ) {
-          teamBeta.value.push(joinTeam.player);
-          teamAlpha.value.splice(teamAlpha.value.indexOf(joinTeam.player), 1);
-        }
-        break;
-      default:
-        console.log(messageBody);
-    }
-  } catch (error) {
-    console.error(error);
-  }
+function changeState(state: GameState) {
+  currentState.value = state;
 }
 </script>
 
-<style scoped>
-div {
-  /*border: black solid 1px;*/
-}
-
-.content {
-  background-color: var(--background-main);
-  height: 93vh;
-  max-width: 100vw;
-  padding: 1vw;
-  color: var(--text-main);
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-</style>
+<style scoped></style>
