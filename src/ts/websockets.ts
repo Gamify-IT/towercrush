@@ -86,6 +86,11 @@ export function joinTeam(team: string, lobby: string) {
   stompClientGame.value.send(`/ws/lobby/${lobby}/join/team/${team}`);
 }
 
+export function click(lobby: string) {
+  console.log("click in lobby: ", lobby);
+  stompClientGame.value.send(`/ws/lobby/${lobby}/click`);
+}
+
 export function fetchLobbyData(lobby: string) {
   console.log("fetch lobby data");
   stompClientGame.value.send(`/ws/get/infos/on/join/${lobby}`);

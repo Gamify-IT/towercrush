@@ -125,6 +125,7 @@ export enum Purpose {
   CHAT_MESSAGE = "CHAT_MESSAGE",
   UPDATE_LOBBY_MESSAGE = "UPDATE_LOBBY_MESSAGE",
   DEVELOPER_MESSAGE = "DEVELOPER_MESSAGE",
+  UPDATE_GAME_MESSAGE = "UPDATE_GAME_MESSAGE",
 }
 
 export enum GameState {
@@ -132,4 +133,12 @@ export enum GameState {
   LOBBY,
   GAME,
   RESULTS,
+}
+
+export class UpdateGameMessage {
+  counter: number;
+
+  public constructor(counter: number) {
+    this.counter = counter;
+  }
 }
