@@ -2,44 +2,44 @@
   <div class="content" id="websocket">
     <div class="row">
       <div class="col">
-        <button class="btn btn-sm btn-success" @click="startLobby">
-          Start Lobby
-        </button>
         <button class="btn btn-sm btn-primary" @click="disconnectFromLobby">
           Leave Lobby
         </button>
       </div>
       <div class="row">
         <div class="col">
-          <button class="btn btn-sm btn-danger" @click="joinTeam('Alpha')">
-            Join Alpha
-          </button>
-          <button class="btn btn-sm btn-primary" @click="joinTeam('Beta')">
-            Join Beta
-          </button>
+          <button class="btn btn-sm btn-warning" @click="click">Click</button>
         </div>
       </div>
-      Messages: {{ messages }}<br />
-      Team Alpha: {{ teamAlpha }}<br />
-      Team Beta: {{ teamBeta }}<br />
-      Members: {{ players }}<br />
+      Team A:
+      <b-progress
+        :value="counterA"
+        :max="max"
+        show-progress
+        animated
+        variant="danger"
+      ></b-progress>
+      <br />
+      Team B:
+      <b-progress
+        :value="counterB"
+        :max="max"
+        show-progress
+        animated
+      ></b-progress>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
-import { UpdateLobbyMessage, MessageWrapper, Purpose } from "@/ts/models";
+import { MessageWrapper, Purpose, UpdateGameMessage } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 
-const messages = ref<Array<string>>([]);
-
-let teamAlpha = ref<Array<string>>([]); //lobby (game)
-let teamBeta = ref<Array<string>>([]); //lobby (game)
-let players = ref<Array<string>>([]); //lobby (game)
+let counterA = ref<number>(0);
+let counterB = ref<number>(0);
 
 const props = defineProps<{
   lobby: string;
-  player: string;
 }>();
 
 /**
@@ -47,14 +47,12 @@ const props = defineProps<{
  */
 const emit = defineEmits<{
   (e: "setStateToStart"): void;
-  (e: "setStateToGame"): void;
 }>();
 
 /**
  * Everytime this components mounts this method adds the local handler function
  */
 onMounted(() => {
-  websockets.fetchLobbyData(props.lobby);
   websockets.addHandleFunction(handleMessageReceipt);
 });
 
@@ -64,21 +62,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   websockets.removeHandleFunction(handleMessageReceipt);
 });
-
-/**
- * button function, when player joins team
- * @param team
- */
-function joinTeam(team: string) {
-  websockets.joinTeam(team, props.lobby);
-}
-
-/**
- * button function, when player starts game
- */
-function startLobby() {
-  emit("setStateToGame");
-}
 
 /**
  * button function
@@ -99,11 +82,8 @@ function handleMessageReceipt(messageBody: string) {
     let purpose = messageWrapper.purpose;
     console.log("case: ", purpose);
     switch (purpose) {
-      case Purpose.CHAT_MESSAGE:
-        handleChatMessage(messageBody);
-        break;
-      case Purpose.UPDATE_LOBBY_MESSAGE:
-        handleJoinLeaveLobbyMessage(messageWrapper);
+      case Purpose.UPDATE_GAME_MESSAGE:
+        handleUpdateGameMessage(messageWrapper);
         break;
       default:
         console.log("no case found: ", messageBody);
@@ -113,21 +93,18 @@ function handleMessageReceipt(messageBody: string) {
   }
 }
 
-function handleChatMessage(messageBody: string) {
-  messages.value.push(messageBody);
+function handleUpdateGameMessage(messageBody: MessageWrapper) {
+  let updateGameMessage = JSON.parse(messageBody.data) as UpdateGameMessage;
+  if (updateGameMessage.counter >= 0) {
+    counterA.value = updateGameMessage.counter;
+  }
+  if (updateGameMessage.counter <= 0) {
+    counterB.value = -updateGameMessage.counter;
+  }
 }
 
-function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
-  let updatedLobby = JSON.parse(messageWrapper.data) as UpdateLobbyMessage;
-  players.value = updatedLobby.updatedLobby.players.map(
-    (player) => player.player
-  );
-  teamAlpha.value = updatedLobby.updatedLobby.teamA.map(
-    (player) => player.player
-  );
-  teamBeta.value = updatedLobby.updatedLobby.teamB.map(
-    (player) => player.player
-  );
+function click() {
+  websockets.click(props.lobby);
 }
 </script>
 

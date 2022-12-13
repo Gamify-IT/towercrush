@@ -80,20 +80,6 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_URL=postgresql://overworld-db:5432/postgres
 
-  towercrush-backend:
-    container_name:   towercrush-backend
-    image: ghcr.io/gamify-it/towercrush-backend:main
-    restart: always
-    pull_policy: always
-    expose:
-      - "80"
-    depends_on:
-      - towercrush-db
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_URL=postgresql://towercrush-db:5432/postgres
-
   #frontends
   landing-page:
     container_name: landing-page
@@ -127,6 +113,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ./.nginx/compose/nginx-dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./.nginx/compose/nginx-dev-e2e.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "80:80"
