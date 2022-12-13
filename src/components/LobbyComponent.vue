@@ -58,6 +58,7 @@ const emit = defineEmits<{
  * Everytime this components mounts this method adds the local handler function
  */
 onMounted(() => {
+  websockets.fetchLobbyData(props.lobby);
   websockets.addHandleFunction(handleMessageReceipt);
 });
 
