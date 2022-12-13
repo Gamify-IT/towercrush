@@ -8,10 +8,25 @@
       </div>
       <div class="row">
         <div class="col">
-          <button class="btn btn-sm btn-danger" @click="click">Click</button>
+          <button class="btn btn-sm btn-warning" @click="click">Click</button>
         </div>
       </div>
-      Counter: {{ counter }}<br />
+      Team A:
+      <b-progress
+        :value="counterA"
+        :max="max"
+        show-progress
+        animated
+        variant="danger"
+      ></b-progress>
+      <br />
+      Team B:
+      <b-progress
+        :value="counterB"
+        :max="max"
+        show-progress
+        animated
+      ></b-progress>
     </div>
   </div>
 </template>
@@ -20,7 +35,8 @@ import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
 import { MessageWrapper, Purpose, UpdateGameMessage } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 
-let counter = ref<number>(0);
+let counterA = ref<number>(0);
+let counterB = ref<number>(0);
 
 const props = defineProps<{
   lobby: string;
@@ -79,7 +95,12 @@ function handleMessageReceipt(messageBody: string) {
 
 function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let updateGameMessage = JSON.parse(messageBody.data) as UpdateGameMessage;
-  counter.value = updateGameMessage.counter;
+  if (updateGameMessage.counter >= 0) {
+    counterA.value = updateGameMessage.counter;
+  }
+  if (updateGameMessage.counter <= 0) {
+    counterB.value = -updateGameMessage.counter;
+  }
 }
 
 function click() {
