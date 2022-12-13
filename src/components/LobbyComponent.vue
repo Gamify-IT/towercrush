@@ -28,12 +28,7 @@
 </template>
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
-import {
-  UpdateLobbyMessage,
-  JoinTeamMessage,
-  MessageWrapper,
-  Purpose,
-} from "@/ts/models";
+import { UpdateLobbyMessage, MessageWrapper, Purpose } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 
 const messages = ref<Array<string>>([]);
@@ -74,7 +69,7 @@ onBeforeUnmount(() => {
  * @param team
  */
 function joinTeam(team: string) {
-  websockets.joinTeam(team, props.lobby, props.player);
+  websockets.joinTeam(team, props.lobby);
 }
 
 /**
@@ -106,9 +101,6 @@ function handleMessageReceipt(messageBody: string) {
       case Purpose.CHAT_MESSAGE:
         handleChatMessage(messageBody);
         break;
-      case Purpose.JOIN_TEAM_MESSAGE:
-        handleJoinTeamMessage(messageWrapper);
-        break;
       case Purpose.UPDATE_LOBBY_MESSAGE:
         handleJoinLeaveLobbyMessage(messageWrapper);
         break;
@@ -124,26 +116,17 @@ function handleChatMessage(messageBody: string) {
   messages.value.push(messageBody);
 }
 
-function handleJoinTeamMessage(messageWrapper: MessageWrapper) {
-  let joinTeam = JSON.parse(messageWrapper.data) as JoinTeamMessage;
-  if (joinTeam.team === "Alpha" && !teamAlpha.value.includes(joinTeam.player)) {
-    teamAlpha.value.push(joinTeam.player);
-    teamBeta.value.splice(teamBeta.value.indexOf(joinTeam.player), 1);
-  } else if (
-    joinTeam.team === "Beta" &&
-    !teamBeta.value.includes(joinTeam.player)
-  ) {
-    teamBeta.value.push(joinTeam.player);
-    teamAlpha.value.splice(teamAlpha.value.indexOf(joinTeam.player), 1);
-  }
-}
-
 function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
   let updatedLobby = JSON.parse(messageWrapper.data) as UpdateLobbyMessage;
-  let updatedPlayer = updatedLobby.updatedLobby.players.map(
+  players.value = updatedLobby.updatedLobby.players.map(
     (player) => player.player
   );
-  players.value = updatedPlayer;
+  teamAlpha.value = updatedLobby.updatedLobby.teamA.map(
+    (player) => player.player
+  );
+  teamBeta.value = updatedLobby.updatedLobby.teamB.map(
+    (player) => player.player
+  );
 }
 </script>
 

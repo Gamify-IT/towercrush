@@ -63,16 +63,6 @@ export class GameResultDTO {
   }
 }
 
-export class JoinTeamMessage {
-  team: string;
-  player: string;
-
-  public constructor(team: string, player: string) {
-    this.team = team;
-    this.player = player;
-  }
-}
-
 export class UpdateLobbyMessage {
   updatedLobby: Lobby;
 
@@ -90,15 +80,15 @@ export class DeveloperMessage {
 }
 
 export class Lobby {
-  teamA: [];
-  teamB: [];
+  teamA: Player[];
+  teamB: Player[];
   players: Player[];
   createdAt: string;
   lobbyName: string;
 
   public constructor(
-    teamA: [],
-    teamB: [],
+    teamA: Player[],
+    teamB: Player[],
     players: Player[],
     createdAt: string,
     lobbyName: string
@@ -133,7 +123,6 @@ export class MessageWrapper {
 
 export enum Purpose {
   CHAT_MESSAGE = "CHAT_MESSAGE",
-  JOIN_TEAM_MESSAGE = "JOIN_TEAM_MESSAGE",
   UPDATE_LOBBY_MESSAGE = "UPDATE_LOBBY_MESSAGE",
   DEVELOPER_MESSAGE = "DEVELOPER_MESSAGE",
 }

@@ -1,4 +1,4 @@
-import { defineEmits, ref } from "vue";
+import { ref } from "vue";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
@@ -81,11 +81,9 @@ export function subscribeDeveloperTopic() {
   );
 }
 
-export function joinTeam(team: string, lobby: string, player: string) {
+export function joinTeam(team: string, lobby: string) {
   console.log("join team: ", team);
-  stompClientGame.value.send(
-    `/ws/lobby/${lobby}/join/team/${team}/player/${player}`
-  );
+  stompClientGame.value.send(`/ws/lobby/${lobby}/join/team/${team}`);
 }
 
 export function fetchLobbyData(lobby: string) {
