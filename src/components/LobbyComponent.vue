@@ -11,30 +11,30 @@
       </div>
       <div class="row">
         <div class="col">
-          <button class="btn btn-sm btn-danger" @click="joinTeam('Alpha')">
-            Join Alpha
+          <button class="btn btn-sm btn-danger" @click="joinTeam('teamA')">
+            Join TeamA
           </button>
-          <button class="btn btn-sm btn-primary" @click="joinTeam('Beta')">
-            Join Beta
+          <button class="btn btn-sm btn-primary" @click="joinTeam('teamB')">
+            Join TeamB
           </button>
         </div>
       </div>
       Messages: {{ messages }}<br />
-      Team Alpha: {{ teamAlpha }}<br />
-      Team Beta: {{ teamBeta }}<br />
+      Team A: {{ teamA }}<br />
+      Team B: {{ teamB }}<br />
       Members: {{ players }}<br />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
-import { UpdateLobbyMessage, MessageWrapper, Purpose } from "@/ts/models";
+import { defineEmits, defineProps, onBeforeUnmount, onMounted, ref } from "vue";
+import { MessageWrapper, Purpose, UpdateLobbyMessage } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 
 const messages = ref<Array<string>>([]);
 
-let teamAlpha = ref<Array<string>>([]); //lobby (game)
-let teamBeta = ref<Array<string>>([]); //lobby (game)
+let teamA = ref<Array<string>>([]); //lobby (game)
+let teamB = ref<Array<string>>([]); //lobby (game)
 let players = ref<Array<string>>([]); //lobby (game)
 
 const props = defineProps<{
@@ -48,6 +48,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "setStateToStart"): void;
   (e: "setStateToGame"): void;
+  (e: "setTeam", teamName: string): void;
 }>();
 
 /**
@@ -71,6 +72,7 @@ onBeforeUnmount(() => {
  */
 function joinTeam(team: string) {
   websockets.joinTeam(team, props.lobby);
+  emit("setTeam", team);
 }
 
 /**
@@ -122,12 +124,8 @@ function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
   players.value = updatedLobby.updatedLobby.players.map(
     (player) => player.player
   );
-  teamAlpha.value = updatedLobby.updatedLobby.teamA.map(
-    (player) => player.player
-  );
-  teamBeta.value = updatedLobby.updatedLobby.teamB.map(
-    (player) => player.player
-  );
+  teamA.value = updatedLobby.updatedLobby.teamA.map((player) => player.player);
+  teamB.value = updatedLobby.updatedLobby.teamB.map((player) => player.player);
 }
 </script>
 

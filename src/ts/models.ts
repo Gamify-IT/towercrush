@@ -126,6 +126,7 @@ export enum Purpose {
   UPDATE_LOBBY_MESSAGE = "UPDATE_LOBBY_MESSAGE",
   DEVELOPER_MESSAGE = "DEVELOPER_MESSAGE",
   UPDATE_GAME_MESSAGE = "UPDATE_GAME_MESSAGE",
+  UPDATE_ROUND_MESSAGE = "UPDATE_ROUND_MESSAGE",
 }
 
 export enum GameState {
@@ -136,9 +137,53 @@ export enum GameState {
 }
 
 export class UpdateGameMessage {
-  counter: number;
+  game: Game;
 
-  public constructor(counter: number) {
-    this.counter = counter;
+  public constructor(game: Game) {
+    this.game = game;
+  }
+}
+
+export class Vote {
+  player: Player;
+  answer: string;
+
+  public constructor(player: Player, answer: string) {
+    this.player = player;
+    this.answer = answer;
+  }
+}
+
+export class Round {
+  question: Question;
+  teamA: Vote[];
+  teamB: Vote[];
+
+  public constructor(question: Question, teamA: Vote[], teamB: Vote[]) {
+    this.question = question;
+    this.teamA = teamA;
+    this.teamB = teamB;
+  }
+}
+
+export class Game {
+  rounds: Round[];
+  currentQuestionTeamA: number;
+  currentQuestionTeamB: number;
+  teamATowerSize: number;
+  teamBTowerSize: number;
+
+  public constructor(
+    currentQuestionTeamA: number,
+    currentQuestionTeamB: number,
+    rounds: Round[],
+    teamATowerSize: number,
+    teamBTowerSize: number
+  ) {
+    this.currentQuestionTeamA = currentQuestionTeamA;
+    this.currentQuestionTeamB = currentQuestionTeamB;
+    this.rounds = rounds;
+    this.teamATowerSize = teamATowerSize;
+    this.teamBTowerSize = teamBTowerSize;
   }
 }

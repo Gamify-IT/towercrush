@@ -5,29 +5,12 @@
         <button class="btn btn-sm btn-primary" @click="disconnectFromLobby">
           Leave Lobby
         </button>
+        <button class="btn btn-sm btn-primary" @click="nextQuestion">
+          next Question Test
+        </button>
       </div>
-      <div class="row">
-        <div class="col">
-          <button class="btn btn-sm btn-warning" @click="click">Click</button>
-        </div>
-      </div>
-      Team A:
-      <b-progress
-        :value="counterA"
-        :max="max"
-        show-progress
-        animated
-        variant="danger"
-      ></b-progress>
-      <br />
-      Team B:
-      <b-progress
-        :value="counterB"
-        :max="max"
-        show-progress
-        animated
-      ></b-progress>
     </div>
+    {{ currentQuestion }}
   </div>
 </template>
 <script setup lang="ts">
@@ -35,11 +18,11 @@ import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
 import { MessageWrapper, Purpose, UpdateGameMessage } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 
-let counterA = ref<number>(0);
-let counterB = ref<number>(0);
+let currentQuestion = ref<string>();
 
 const props = defineProps<{
   lobby: string;
+  team: string;
 }>();
 
 /**
@@ -95,17 +78,31 @@ function handleMessageReceipt(messageBody: string) {
 
 function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let updateGameMessage = JSON.parse(messageBody.data) as UpdateGameMessage;
-  if (updateGameMessage.counter >= 0) {
-    counterA.value = updateGameMessage.counter;
-  }
-  if (updateGameMessage.counter <= 0) {
-    counterB.value = -updateGameMessage.counter;
+  let game = updateGameMessage.game;
+  if (props.team === "teamA") {
+    currentQuestion.value =
+      game.rounds[game.currentQuestionTeamA].question.text;
+  } else {
+    currentQuestion.value =
+      game.rounds[game.currentQuestionTeamB].question.text;
   }
 }
 
 function click() {
   websockets.click(props.lobby);
 }
+
+function initGame() {
+  let locationArray = window.location.toString().split("/");
+  const configurationId = locationArray[locationArray.length - 1];
+  websockets.initGame(props.lobby, configurationId);
+}
+
+function nextQuestion() {
+  websockets.nextQuestion(props.lobby, props.team);
+}
+
+initGame();
 </script>
 
 <style scoped>
