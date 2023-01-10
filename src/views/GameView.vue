@@ -7,14 +7,17 @@
     <LobbyComponent
       @setStateToStart="setStateToStart"
       @setStateToGame="setStateToGame"
+      @setTeam="setTeam"
       :player="player"
       :lobby="lobby"
+      :team="team"
     ></LobbyComponent>
   </div>
   <div v-if="currentState === GameState.GAME">
     <GameComponent
       @setStateToStart="setStateToStart"
       :lobby="lobby"
+      :team="team"
     ></GameComponent>
   </div>
 </template>
@@ -29,6 +32,7 @@ import GameComponent from "@/components/GameComponent.vue";
 const currentState = ref(GameState.START);
 const lobby = ref("");
 const player = ref("");
+const team = ref("");
 
 /**
  * This method changes the state to Lobby
@@ -59,6 +63,10 @@ function setStateToStart() {
 
 function changeState(state: GameState) {
   currentState.value = state;
+}
+
+function setTeam(teamParam: string) {
+  team.value = teamParam;
 }
 </script>
 

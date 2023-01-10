@@ -96,12 +96,16 @@ export function fetchLobbyData(lobby: string) {
   stompClientGame.value.send(`/ws/get/infos/on/join/${lobby}`);
 }
 
-export function startLobby(lobby: string) {
-  if (stompClientGame.value != null) {
-    stompClientGame.value.send("/ws/start/lobby/" + lobby);
-  } else {
-    alert("Please connect first");
-  }
+export function initGame(lobby: string, configurationId: string) {
+  console.log("init Game");
+  stompClientGame.value.send(
+    `/ws/init/Game/${lobby}/configurationId/${configurationId}`
+  );
+}
+
+export function nextQuestion(lobby: string, team: string) {
+  console.log("next question");
+  stompClientGame.value.send(`/ws/next/Question/${lobby}/team/${team}`);
 }
 
 export function disconnectFromLobby(
