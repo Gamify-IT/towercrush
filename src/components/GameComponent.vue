@@ -156,7 +156,7 @@ function setAnswersTeamB(game: Game) {
     0,
     rightAnswer
   );
-  tempVotes = game.rounds[game.currentQuestionTeamB].teamA;
+  tempVotes = game.rounds[game.currentQuestionTeamB].teamB;
 
   currentAnswers.value = new Map<string, string[]>();
   for (let answer of tempAnswers) {
