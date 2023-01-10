@@ -187,3 +187,13 @@ export class Game {
     this.teamBTowerSize = teamBTowerSize;
   }
 }
+
+export class AnswerVote {
+  answer: string;
+  vote: Vote;
+
+  public constructor(answer: string, vote: Vote) {
+    this.answer = answer;
+    this.vote = vote;
+  }
+}

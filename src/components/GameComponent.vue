@@ -10,15 +10,31 @@
         </button>
       </div>
     </div>
-    {{ currentQuestion }}
+    Question: {{ currentQuestion }}
+    <div v-for="answer in currentAnswers" v-bind:key="answer">
+      <button class="accordion-button" @click="putVote(answer[0])">
+        {{ answer[0] }}
+      </button>
+      <div class="votes">{{ answer[1] }}</div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
-import { MessageWrapper, Purpose, UpdateGameMessage } from "@/ts/models";
+import {
+  AnswerVote,
+  Game,
+  MessageWrapper,
+  Player,
+  Purpose,
+  UpdateGameMessage,
+  Vote,
+} from "@/ts/models";
 import * as websockets from "@/ts/websockets";
+import { BButton } from "bootstrap-vue-3";
 
 let currentQuestion = ref<string>();
+let currentAnswers = ref<Map<string, string[]>>();
 
 const props = defineProps<{
   lobby: string;
@@ -54,6 +70,22 @@ function disconnectFromLobby() {
   emit("setStateToStart");
 }
 
+function initGame() {
+  let locationArray = window.location.toString().split("/");
+  const configurationId = locationArray[locationArray.length - 1];
+  websockets.initGame(props.lobby, configurationId);
+}
+
+function putVote(answer: string) {
+  websockets.putVote(props.lobby, props.team, currentQuestion.value!, answer);
+}
+
+function nextQuestion() {
+  websockets.nextQuestion(props.lobby, props.team);
+}
+
+initGame();
+
 /**
  * This method handles all incoming messages from the backend
  * @param messageBody message from the backend as string
@@ -79,30 +111,63 @@ function handleMessageReceipt(messageBody: string) {
 function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let updateGameMessage = JSON.parse(messageBody.data) as UpdateGameMessage;
   let game = updateGameMessage.game;
+
   if (props.team === "teamA") {
     currentQuestion.value =
       game.rounds[game.currentQuestionTeamA].question.text;
+    setAnswersTeamA(game);
   } else {
     currentQuestion.value =
       game.rounds[game.currentQuestionTeamB].question.text;
+    setAnswersTeamB(game);
   }
 }
 
-function click() {
-  websockets.click(props.lobby);
+function setAnswersTeamA(game: Game) {
+  let tempAnswers: string[];
+  let tempVotes: Vote[];
+  tempAnswers = game.rounds[game.currentQuestionTeamA].question.wrongAnswers;
+  let rightAnswer = game.rounds[game.currentQuestionTeamA].question.rightAnswer;
+  tempAnswers.splice(
+    Math.floor(Math.random() * (tempAnswers.length + 1)),
+    0,
+    rightAnswer
+  );
+  tempVotes = game.rounds[game.currentQuestionTeamA].teamA;
+
+  currentAnswers.value = new Map<string, string[]>();
+  for (let answer of tempAnswers) {
+    currentAnswers.value.set(answer, []);
+  }
+  for (let vote of tempVotes) {
+    if (currentAnswers.value.get(vote.answer) !== undefined) {
+      currentAnswers.value.get(vote.answer)?.push(vote.player.player);
+    }
+  }
 }
 
-function initGame() {
-  let locationArray = window.location.toString().split("/");
-  const configurationId = locationArray[locationArray.length - 1];
-  websockets.initGame(props.lobby, configurationId);
-}
+function setAnswersTeamB(game: Game) {
+  let tempAnswers: string[];
+  let tempVotes: Vote[];
+  tempAnswers = game.rounds[game.currentQuestionTeamB].question.wrongAnswers;
+  let rightAnswer = game.rounds[game.currentQuestionTeamB].question.rightAnswer;
+  tempAnswers.splice(
+    Math.floor(Math.random() * (tempAnswers.length + 1)),
+    0,
+    rightAnswer
+  );
+  tempVotes = game.rounds[game.currentQuestionTeamB].teamA;
 
-function nextQuestion() {
-  websockets.nextQuestion(props.lobby, props.team);
+  currentAnswers.value = new Map<string, string[]>();
+  for (let answer of tempAnswers) {
+    currentAnswers.value.set(answer, []);
+  }
+  for (let vote of tempVotes) {
+    if (currentAnswers.value.get(vote.answer) !== undefined) {
+      currentAnswers.value.get(vote.answer)?.push(vote.player.player);
+    }
+  }
 }
-
-initGame();
 </script>
 
 <style scoped>
@@ -116,6 +181,10 @@ div {
   max-width: 100vw;
   padding: 1vw;
   color: var(--text-main);
+}
+
+.votes {
+  color: #870c0c;
 }
 
 @keyframes spin {
