@@ -102,11 +102,11 @@ export class Lobby {
 }
 
 export class Player {
-  player: string;
+  playerName: string;
   key: string;
 
   public constructor(playerName: string, key: string) {
-    this.player = playerName;
+    this.playerName = playerName;
     this.key = key;
   }
 }
