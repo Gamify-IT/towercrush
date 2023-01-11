@@ -115,9 +115,7 @@ export function nextQuestion(lobby: string, team: string) {
   stompClientGame.value.send(`/ws/next/Question/${lobby}/team/${team}`);
 }
 
-export function disconnectFromLobby(
-  handleFunctionToRemove: any
-) {
+export function disconnectFromLobby(handleFunctionToRemove: any) {
   if (stompClientGame.value != null) {
     stompClientGame.value.disconnect(function () {
       console.log("STOMP client succesfully disconnected.");

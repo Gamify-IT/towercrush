@@ -86,7 +86,7 @@ function startLobby() {
  * button function
  */
 function disconnectFromLobby() {
-  websockets.disconnectFromLobby(props.lobby, handleMessageReceipt);
+  websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
 }
 
@@ -124,8 +124,12 @@ function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
   players.value = updatedLobby.updatedLobby.players.map(
     (player) => player.playerName
   );
-  teamA.value = updatedLobby.updatedLobby.teamA.map((player) => player.playerName);
-  teamB.value = updatedLobby.updatedLobby.teamB.map((player) => player.playerName);
+  teamA.value = updatedLobby.updatedLobby.teamA.map(
+    (player) => player.playerName
+  );
+  teamB.value = updatedLobby.updatedLobby.teamB.map(
+    (player) => player.playerName
+  );
 }
 </script>
 
