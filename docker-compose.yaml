@@ -12,7 +12,7 @@ services:
       POSTGRES_SETUP: >
         keycloak/default.sql
         overworld/default.sql
-        towercrush/default.sql
+    #    towercrush/default.sql
 
   keycloak-db:
     container_name: keycloak-db
@@ -79,6 +79,9 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_URL=postgresql://overworld-db:5432/postgres
+      - TOWERCRUSH_URL=http://towercrush-backend/api/v1
+      - KEYCLOAK_ISSUER=http://localhost/keycloak/realms/Gamify-IT
+      - KEYCLOAK_URL=http://keycloak/keycloak/realms/Gamify-IT
 
   towercrush-backend:
     container_name:   towercrush-backend
@@ -94,6 +97,8 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_URL=postgresql://towercrush-db:5432/postgres
       - OVERWORLD_URL=http://overworld-backend/api/v1
+      - KEYCLOAK_ISSUER=http://localhost/keycloak/realms/Gamify-IT
+      - KEYCLOAK_URL=http://keycloak/keycloak/realms/Gamify-IT
 
   #frontends
   landing-page:
@@ -117,6 +122,14 @@ services:
     image: ghcr.io/gamify-it/towercrush:main
     pull_policy: always
     restart: always
+    expose:
+      - "80"
+
+  lecturer-interface:
+    container_name: lecturer-interface
+    image: ghcr.io/gamify-it/lecturer-interface:main
+    restart: always
+    pull_policy: always
     expose:
       - "80"
 
