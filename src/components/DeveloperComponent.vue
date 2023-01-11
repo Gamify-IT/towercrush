@@ -47,7 +47,7 @@ function handleMessageReceipt(messageBody: string) {
         console.log("no case found: ", messageBody);
     }
   } catch (error) {
-    //console.error("error: ", error);
+    console.error("error: ", error);
   }
 }
 </script>

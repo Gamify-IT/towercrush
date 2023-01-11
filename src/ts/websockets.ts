@@ -14,13 +14,13 @@ export function addHandleFunction(functionParam: any) {
 export function removeHandleFunction(functionParam: any) {
   console.log("remove one handler functions");
   handleFunctionList = handleFunctionList.filter((filterFunction) => {
-    filterFunction !== functionParam;
+    return filterFunction !== functionParam;
   });
 }
 
 export function connect(lobby: string, player: string) {
   console.log("connect to lobby");
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     stompClientGame.value = Stomp.over(
       new SockJS("/minigames/towercrush/api/v1/connect")
     );
@@ -35,7 +35,7 @@ export function connect(lobby: string, player: string) {
 
 export function connectDeveloper() {
   console.log("connect to developer");
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     stompClientGame.value = Stomp.over(
       new SockJS("/minigames/towercrush/api/v1/connect")
     );
@@ -116,7 +116,6 @@ export function nextQuestion(lobby: string, team: string) {
 }
 
 export function disconnectFromLobby(
-  lobby: string,
   handleFunctionToRemove: any
 ) {
   if (stompClientGame.value != null) {

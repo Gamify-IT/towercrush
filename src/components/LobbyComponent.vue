@@ -111,7 +111,7 @@ function handleMessageReceipt(messageBody: string) {
         console.log("no case found: ", messageBody);
     }
   } catch (error) {
-    //console.error("error: ", error);
+    console.error("error: ", error);
   }
 }
 
@@ -122,10 +122,10 @@ function handleChatMessage(messageBody: string) {
 function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
   let updatedLobby = JSON.parse(messageWrapper.data) as UpdateLobbyMessage;
   players.value = updatedLobby.updatedLobby.players.map(
-    (player) => player.player
+    (player) => player.playerName
   );
-  teamA.value = updatedLobby.updatedLobby.teamA.map((player) => player.player);
-  teamB.value = updatedLobby.updatedLobby.teamB.map((player) => player.player);
+  teamA.value = updatedLobby.updatedLobby.teamA.map((player) => player.playerName);
+  teamB.value = updatedLobby.updatedLobby.teamB.map((player) => player.playerName);
 }
 </script>
 

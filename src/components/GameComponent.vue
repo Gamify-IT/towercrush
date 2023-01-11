@@ -22,16 +22,13 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
 import {
-  AnswerVote,
   Game,
   MessageWrapper,
-  Player,
   Purpose,
   UpdateGameMessage,
   Vote,
 } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
-import { BButton } from "bootstrap-vue-3";
 
 let currentQuestion = ref<string>();
 let currentAnswers = ref<Map<string, string[]>>();
@@ -104,7 +101,7 @@ function handleMessageReceipt(messageBody: string) {
         console.log("no case found: ", messageBody);
     }
   } catch (error) {
-    //console.error("error: ", error);
+    console.error("error: ", error);
   }
 }
 
@@ -141,7 +138,7 @@ function setAnswersTeamA(game: Game) {
   }
   for (let vote of tempVotes) {
     if (currentAnswers.value.get(vote.answer) !== undefined) {
-      currentAnswers.value.get(vote.answer)?.push(vote.player.player);
+      currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
     }
   }
 }
@@ -164,7 +161,7 @@ function setAnswersTeamB(game: Game) {
   }
   for (let vote of tempVotes) {
     if (currentAnswers.value.get(vote.answer) !== undefined) {
-      currentAnswers.value.get(vote.answer)?.push(vote.player.player);
+      currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
     }
   }
 }
