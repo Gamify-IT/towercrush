@@ -177,6 +177,9 @@ function setAnswersTeamB(game: Game) {
       currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
     }
   }
+  if (tempVotes.length === game.teamB.length) {
+    allMembersVoted.value = true;
+  }
 }
 </script>
 
