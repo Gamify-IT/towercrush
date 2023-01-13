@@ -86,6 +86,16 @@ export function joinTeam(team: string, lobby: string) {
   stompClientGame.value.send(`/ws/lobby/${lobby}/join/team/${team}`);
 }
 
+export function changeReady(lobby: string) {
+  console.log("ready up!");
+  stompClientGame.value.send(`/ws/lobby/${lobby}/change-ready`);
+}
+
+export function startGame(lobby: string) {
+  console.log("start game!");
+  stompClientGame.value.send(`/ws/lobby/${lobby}/start-game`);
+}
+
 export function putVote(
   lobby: string,
   team: string,
