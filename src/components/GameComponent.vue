@@ -2,11 +2,15 @@
   <div class="content" id="websocket">
     <div class="row">
       <div class="col">
-        <button class="btn btn-sm btn-primary" @click="disconnectFromLobby">
+        <button class="btn btn-sm btn-danger" @click="disconnectFromLobby">
           Leave Lobby
         </button>
-        <button class="btn btn-sm btn-primary" @click="nextQuestion">
-          next Question Test
+        <button
+          class="btn btn-sm btn-primary"
+          :disabled="!allMembersVoted"
+          @click="nextQuestion"
+        >
+          Next Question
         </button>
       </div>
     </div>
@@ -33,6 +37,7 @@ import * as websockets from "@/ts/websockets";
 
 let currentQuestion = ref<Question>();
 let currentAnswers = ref<Map<string, string[]>>();
+let allMembersVoted = ref<boolean>();
 
 const props = defineProps<{
   lobby: string;
@@ -47,14 +52,14 @@ const emit = defineEmits<{
 }>();
 
 /**
- * Everytime this components mounts this method adds the local handler function
+ * Everytime this component mounts this method adds the local handler function
  */
 onMounted(() => {
   websockets.addHandleFunction(handleMessageReceipt);
 });
 
 /**
- * Everytime this components unmounts this method removes the local handler function
+ * Everytime this component unmounts this method removes the local handler function
  */
 onBeforeUnmount(() => {
   websockets.removeHandleFunction(handleMessageReceipt);
@@ -85,6 +90,7 @@ function putVote(answer: string) {
 
 function nextQuestion() {
   websockets.nextQuestion(props.lobby, props.team);
+  allMembersVoted.value = false;
 }
 
 initGame();
@@ -144,6 +150,9 @@ function setAnswersTeamA(game: Game) {
     if (currentAnswers.value.get(vote.answer) !== undefined) {
       currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
     }
+  }
+  if (tempVotes.length === game.teamA.length) {
+    allMembersVoted.value = true;
   }
 }
 
