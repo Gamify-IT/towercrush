@@ -10,7 +10,7 @@
         </button>
       </div>
     </div>
-    Question: {{ currentQuestion }}
+    <div v-if="currentQuestion">Question: {{ currentQuestion.text }}</div>
     <div v-for="answer in currentAnswers" v-bind:key="answer">
       <button class="accordion-button" @click="putVote(answer[0])">
         {{ answer[0] }}
@@ -25,12 +25,13 @@ import {
   Game,
   MessageWrapper,
   Purpose,
+  Question,
   UpdateGameMessage,
   Vote,
 } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 
-let currentQuestion = ref<string>();
+let currentQuestion = ref<Question>();
 let currentAnswers = ref<Map<string, string[]>>();
 
 const props = defineProps<{
@@ -63,7 +64,7 @@ onBeforeUnmount(() => {
  * button function
  */
 function disconnectFromLobby() {
-  websockets.disconnectFromLobby(props.lobby, handleMessageReceipt);
+  websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
 }
 
@@ -74,7 +75,12 @@ function initGame() {
 }
 
 function putVote(answer: string) {
-  websockets.putVote(props.lobby, props.team, currentQuestion.value!, answer);
+  websockets.putVote(
+    props.lobby,
+    props.team,
+    currentQuestion.value!.id!,
+    answer
+  );
 }
 
 function nextQuestion() {
@@ -110,12 +116,10 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let game = updateGameMessage.game;
 
   if (props.team === "teamA") {
-    currentQuestion.value =
-      game.rounds[game.currentQuestionTeamA].question.text;
+    currentQuestion.value = game.rounds[game.currentQuestionTeamA].question;
     setAnswersTeamA(game);
   } else {
-    currentQuestion.value =
-      game.rounds[game.currentQuestionTeamB].question.text;
+    currentQuestion.value = game.rounds[game.currentQuestionTeamB].question;
     setAnswersTeamB(game);
   }
 }
