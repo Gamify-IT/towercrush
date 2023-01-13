@@ -37,7 +37,7 @@ import * as websockets from "@/ts/websockets";
 
 let currentQuestion = ref<Question>();
 let currentAnswers = ref<Map<string, string[]>>();
-let allMembersVoted = ref<boolean>();
+let allMembersVoted = ref<boolean>(false);
 
 const props = defineProps<{
   lobby: string;
@@ -90,7 +90,6 @@ function putVote(answer: string) {
 
 function nextQuestion() {
   websockets.nextQuestion(props.lobby, props.team);
-  allMembersVoted.value = false;
 }
 
 initGame();
@@ -140,7 +139,7 @@ function setAnswersTeamA(game: Game) {
     0,
     rightAnswer
   );
-  tempVotes = game.rounds[game.currentQuestionTeamA].teamA;
+  tempVotes = game.rounds[game.currentQuestionTeamA].teamAVotes;
 
   currentAnswers.value = new Map<string, string[]>();
   for (let answer of tempAnswers) {
@@ -151,9 +150,8 @@ function setAnswersTeamA(game: Game) {
       currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
     }
   }
-  if (tempVotes.length === game.teamA.length) {
-    allMembersVoted.value = true;
-  }
+  allMembersVoted.value =
+    game.rounds[game.currentQuestionTeamA].teamReadyForNextQuestion.teamA;
 }
 
 function setAnswersTeamB(game: Game) {
@@ -166,7 +164,7 @@ function setAnswersTeamB(game: Game) {
     0,
     rightAnswer
   );
-  tempVotes = game.rounds[game.currentQuestionTeamB].teamB;
+  tempVotes = game.rounds[game.currentQuestionTeamB].teamBVotes;
 
   currentAnswers.value = new Map<string, string[]>();
   for (let answer of tempAnswers) {
@@ -177,9 +175,8 @@ function setAnswersTeamB(game: Game) {
       currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
     }
   }
-  if (tempVotes.length === game.teamB.length) {
-    allMembersVoted.value = true;
-  }
+  allMembersVoted.value =
+    game.rounds[game.currentQuestionTeamB].teamReadyForNextQuestion.teamB;
 }
 </script>
 

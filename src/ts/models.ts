@@ -162,13 +162,20 @@ export class Vote {
 
 export class Round {
   question: Question;
-  teamA: Vote[];
-  teamB: Vote[];
+  teamAVotes: Vote[];
+  teamBVotes: Vote[];
+  teamReadyForNextQuestion: { teamA: boolean; teamB: boolean };
 
-  public constructor(question: Question, teamA: Vote[], teamB: Vote[]) {
+  public constructor(
+    question: Question,
+    teamAVotes: Vote[],
+    teamBVotes: Vote[],
+    teamReadyForNextQuestion: { teamA: boolean; teamB: boolean }
+  ) {
     this.question = question;
-    this.teamA = teamA;
-    this.teamB = teamB;
+    this.teamAVotes = teamAVotes;
+    this.teamBVotes = teamBVotes;
+    this.teamReadyForNextQuestion = teamReadyForNextQuestion;
   }
 }
 
