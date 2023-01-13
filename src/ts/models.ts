@@ -83,21 +83,27 @@ export class Lobby {
   teamA: Player[];
   teamB: Player[];
   players: Player[];
+  readyPlayers: Player[];
   createdAt: string;
   lobbyName: string;
+  started: boolean;
 
   public constructor(
     teamA: Player[],
     teamB: Player[],
     players: Player[],
+    readyPlayers: Player[],
     createdAt: string,
-    lobbyName: string
+    lobbyName: string,
+    started: boolean
   ) {
     this.teamA = teamA;
     this.teamB = teamB;
     this.players = players;
+    this.readyPlayers = readyPlayers;
     this.createdAt = createdAt;
     this.lobbyName = lobbyName;
+    this.started = started;
   }
 }
 

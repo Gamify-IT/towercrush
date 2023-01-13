@@ -2,28 +2,44 @@
   <div class="content" id="websocket">
     <div class="row">
       <div class="col">
-        <button class="btn btn-sm btn-success" @click="startLobby">
+        <button
+          class="btn btn-sm btn-success"
+          @click="startLobby"
+          :disabled="readyPlayers.length < players.length"
+        >
           Start Lobby
         </button>
         <button class="btn btn-sm btn-primary" @click="disconnectFromLobby">
           Leave Lobby
         </button>
       </div>
-      <div class="row">
-        <div class="col">
-          <button class="btn btn-sm btn-danger" @click="joinTeam('teamA')">
-            Join TeamA
-          </button>
-          <button class="btn btn-sm btn-primary" @click="joinTeam('teamB')">
-            Join TeamB
-          </button>
-        </div>
-      </div>
-      Messages: {{ messages }}<br />
-      Team A: {{ teamA }}<br />
-      Team B: {{ teamB }}<br />
-      Members: {{ players }}<br />
     </div>
+    <div class="row">
+      <div class="col">
+        <button class="btn btn-sm btn-danger" @click="joinTeam('teamA')">
+          Join TeamA
+        </button>
+        <button class="btn btn-sm btn-primary" @click="joinTeam('teamB')">
+          Join TeamB
+        </button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <button
+          class="btn btn-sm btn-outline-info"
+          @click="changeReady()"
+          :disabled="!props.team.includes('team')"
+        >
+          Ready:
+        </button>
+        {{ readyPlayers }}
+      </div>
+    </div>
+    Messages: {{ messages }}<br />
+    Team A: {{ teamA }}<br />
+    Team B: {{ teamB }}<br />
+    Members: {{ players }}<br />
   </div>
 </template>
 <script setup lang="ts">
@@ -36,10 +52,12 @@ const messages = ref<Array<string>>([]);
 let teamA = ref<Array<string>>([]); //lobby (game)
 let teamB = ref<Array<string>>([]); //lobby (game)
 let players = ref<Array<string>>([]); //lobby (game)
+let readyPlayers = ref<Array<string>>([]);
 
 const props = defineProps<{
   lobby: string;
   player: string;
+  team: string;
 }>();
 
 /**
@@ -75,11 +93,18 @@ function joinTeam(team: string) {
   emit("setTeam", team);
 }
 
+function changeReady() {
+  if (props.team.includes("team")) {
+    websockets.changeReady(props.lobby);
+  }
+}
+
 /**
  * button function, when player starts game
  */
 function startLobby() {
-  emit("setStateToGame");
+  console.log("start game");
+  websockets.startGame(props.lobby);
 }
 
 /**
@@ -105,7 +130,7 @@ function handleMessageReceipt(messageBody: string) {
         handleChatMessage(messageBody);
         break;
       case Purpose.UPDATE_LOBBY_MESSAGE:
-        handleJoinLeaveLobbyMessage(messageWrapper);
+        handleUpdateLobbyMessage(messageWrapper);
         break;
       default:
         console.log("no case found: ", messageBody);
@@ -119,7 +144,7 @@ function handleChatMessage(messageBody: string) {
   messages.value.push(messageBody);
 }
 
-function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
+function handleUpdateLobbyMessage(messageWrapper: MessageWrapper) {
   let updatedLobby = JSON.parse(messageWrapper.data) as UpdateLobbyMessage;
   players.value = updatedLobby.updatedLobby.players.map(
     (player) => player.playerName
@@ -130,6 +155,12 @@ function handleJoinLeaveLobbyMessage(messageWrapper: MessageWrapper) {
   teamB.value = updatedLobby.updatedLobby.teamB.map(
     (player) => player.playerName
   );
+  readyPlayers.value = updatedLobby.updatedLobby.readyPlayers.map(
+    (player) => player.playerName
+  );
+  if (updatedLobby.updatedLobby.started) {
+    emit("setStateToGame");
+  }
 }
 </script>
 
