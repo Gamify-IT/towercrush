@@ -20,6 +20,7 @@ export function removeHandleFunction(functionParam: any) {
 
 export function connect(lobby: string, player: string) {
   console.log("connect to lobby");
+  player = player + " (" + localStorage.getItem("username") + ")";
   return new Promise((resolve) => {
     stompClientGame.value = Stomp.over(
       new SockJS("/minigames/towercrush/api/v1/connect")
