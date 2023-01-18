@@ -21,6 +21,15 @@
       </button>
       <div class="votes">{{ answer[1] }}</div>
     </div>
+    TeamA:
+    <video id="myVideo" width="128" height="256" loop autoplay>
+      <source src="../assets/towercrush.mp4" type="video/mp4" />
+      Your browser does not support HTML5 video.</video
+    >TeamB:
+    <video id="myVideo" width="128" height="256" loop autoplay>
+      <source src="../assets/towercrush.mp4" type="video/mp4" />
+      Your browser does not support HTML5 video.
+    </video>
   </div>
 </template>
 <script setup lang="ts">
