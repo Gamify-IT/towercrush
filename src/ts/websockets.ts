@@ -123,6 +123,9 @@ export function initGame(lobby: string, configurationId: string) {
 
 export function nextQuestion(lobby: string, team: string) {
   console.log("next question");
+  stompClientGame.value.send(
+    `/ws/lobby/${lobby}/evaluate/answers/team/${team}`
+  );
   stompClientGame.value.send(`/ws/next/Question/${lobby}/team/${team}`);
 }
 

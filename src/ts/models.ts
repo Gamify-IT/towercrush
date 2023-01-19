@@ -187,6 +187,7 @@ export class Game {
   currentQuestionTeamB: number;
   teamATowerSize: number;
   teamBTowerSize: number;
+  winnerTeam: string;
 
   public constructor(
     teamA: Player[],
@@ -195,7 +196,8 @@ export class Game {
     currentQuestionTeamB: number,
     rounds: Round[],
     teamATowerSize: number,
-    teamBTowerSize: number
+    teamBTowerSize: number,
+    winnerTeam: string
   ) {
     this.teamA = teamA;
     this.teamB = teamB;
@@ -204,6 +206,7 @@ export class Game {
     this.rounds = rounds;
     this.teamATowerSize = teamATowerSize;
     this.teamBTowerSize = teamBTowerSize;
+    this.winnerTeam = winnerTeam;
   }
 }
 

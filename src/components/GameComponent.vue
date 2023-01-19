@@ -30,6 +30,7 @@
       <source src="../assets/towercrush.mp4" type="video/mp4" />
       Your browser does not support HTML5 video.
     </video>
+    tower a: {{ towerA }} tower B: {{ towerB }} team won: {{ teamWon }}
   </div>
 </template>
 <script setup lang="ts">
@@ -45,6 +46,9 @@ import {
 import * as websockets from "@/ts/websockets";
 
 let currentQuestion = ref<Question>();
+let towerA = ref<number>();
+let towerB = ref<number>();
+let teamWon = ref<string>("");
 let currentAnswers = ref<Map<string, string[]>>();
 let allMembersVoted = ref<boolean>(false);
 
@@ -128,7 +132,9 @@ function handleMessageReceipt(messageBody: string) {
 function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let updateGameMessage = JSON.parse(messageBody.data) as UpdateGameMessage;
   let game = updateGameMessage.game;
-
+  towerA.value = game.teamATowerSize;
+  towerB.value = game.teamBTowerSize;
+  teamWon.value = game.winnerTeam;
   if (props.team === "teamA") {
     currentQuestion.value = game.rounds[game.currentQuestionTeamA].question;
     setAnswersTeamA(game);
