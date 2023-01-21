@@ -22,11 +22,11 @@
       <div class="votes">{{ answer[1] }}</div>
     </div>
     TeamA:
-    <video id="towerTeamA" width="128" height="256">
+    <video class="towerVideo" id="towerTeamA" width="128" height="256">
       <source src="../assets/towercrush.mp4" type="video/mp4" />
       Your browser does not support HTML5 video.</video
     >TeamB:
-    <video id="towerTeamB" width="128" height="256">
+    <video class="towerVideo" id="towerTeamB" width="128" height="256">
       <source src="../assets/towercrush.mp4" type="video/mp4" />
       Your browser does not support HTML5 video.
     </video>
@@ -56,6 +56,11 @@ let currentAnswers = ref<Map<string, string[]>>();
 let allMembersVoted = ref<boolean>(false);
 let towerTeamA: any;
 let towerTeamB: any;
+let setSpeed = ref<boolean>(false);
+let previousJumpA = ref<number>(0);
+let previousJumpB = ref<number>(0);
+let previousAnswerPointsTeamA = ref<number>(0);
+let previousAnswerPointsTeamB = ref<number>(0);
 
 const props = defineProps<{
   lobby: string;
@@ -140,19 +145,29 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
   towerA.value = game.teamATowerSize;
   towerB.value = game.teamBTowerSize;
   teamWon.value = game.winnerTeam;
-  let teamAVideoTime = computeTowerTime(
+  if (teamWon.value !== "") {
+    towerTeamA.pause();
+    towerTeamB.pause();
+  }
+  if (!setSpeed.value) {
+    manipulateVideoSpeed(game.initialTowerSize);
+    setSpeed.value = true;
+  }
+  if (game.teamATowerSize > game.initialTowerSize) {
+    towerTeamA.pause();
+  } else if (teamWon.value === "") {
+    towerTeamA.play();
+  }
+  if (game.teamBTowerSize > game.initialTowerSize) {
+    towerTeamB.pause();
+  } else if (teamWon.value === "") {
+    towerTeamB.play();
+  }
+  updatePoints(
     game.initialTowerSize,
-    game.teamATowerSize
+    game.teamAAnswerPoints,
+    game.teamBAnswerPoints
   );
-  let teamBVideoTime = computeTowerTime(
-    game.initialTowerSize,
-    game.teamBTowerSize
-  );
-  console.error(teamAVideoTime);
-  console.error(teamBVideoTime);
-  towerATowerPosition.value = teamAVideoTime;
-  towerBTowerPosition.value = teamBVideoTime;
-  setCurTime(teamAVideoTime, teamBVideoTime);
   if (props.team === "teamA") {
     currentQuestion.value = game.rounds[game.currentQuestionTeamA].question;
     setAnswersTeamA(game);
@@ -212,19 +227,55 @@ function setAnswersTeamB(game: Game) {
     game.rounds[game.currentQuestionTeamB].teamReadyForNextQuestion.teamB;
 }
 
-function computeTowerTime(initialTime: number, time: number) {
-  return 5.36 - (time / initialTime) * 5.36;
+function manipulateVideoSpeed(targetLength: number) {
+  if (towerTeamA === undefined) {
+    towerTeamA = document.getElementById("towerTeamA");
+    towerTeamA.playbackRate = Math.max(
+      1 / 16,
+      Math.min(towerTeamA.duration / targetLength, 16)
+    );
+    towerTeamA.play();
+  }
+  if (towerTeamB === undefined) {
+    towerTeamB = document.getElementById("towerTeamB");
+    towerTeamB.playbackRate = Math.max(
+      1 / 16,
+      Math.min(towerTeamB.duration / targetLength, 16)
+    );
+    towerTeamB.play();
+  }
 }
 
-function setCurTime(towerTeamATime: number, towerTeamBTime: number) {
+function updatePoints(
+  initTowerTime: number,
+  newTeamAAnswerPoints: number,
+  newTeamBAnswerPoints: number
+) {
+  if (
+    previousAnswerPointsTeamA.value === newTeamAAnswerPoints &&
+    previousAnswerPointsTeamB.value === newTeamBAnswerPoints
+  ) {
+    return;
+  } else {
+    previousAnswerPointsTeamA.value = newTeamAAnswerPoints;
+    previousAnswerPointsTeamB.value = newTeamBAnswerPoints;
+  }
   if (towerTeamA === undefined) {
     towerTeamA = document.getElementById("towerTeamA");
   }
   if (towerTeamB === undefined) {
     towerTeamB = document.getElementById("towerTeamB");
   }
-  towerTeamA.currentTime = towerTeamATime;
-  towerTeamB.currentTime = towerTeamBTime;
+  let idkA1 = newTeamAAnswerPoints / initTowerTime;
+  let idkB1 = newTeamBAnswerPoints / initTowerTime;
+  let newJumpA = towerTeamA.duration * idkA1;
+  let newJumpB = towerTeamB.duration * idkB1;
+  towerTeamA.currentTime =
+    towerTeamA.currentTime + previousJumpA.value - newJumpA;
+  towerTeamB.currentTime =
+    towerTeamB.currentTime + previousJumpB.value - newJumpB;
+  previousJumpA.value = newJumpA;
+  previousJumpB.value = newJumpB;
 }
 </script>
 
