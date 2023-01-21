@@ -22,15 +22,16 @@
       <div class="votes">{{ answer[1] }}</div>
     </div>
     TeamA:
-    <video id="myVideo" width="128" height="256" loop autoplay>
+    <video id="towerTeamA" width="128" height="256">
       <source src="../assets/towercrush.mp4" type="video/mp4" />
       Your browser does not support HTML5 video.</video
     >TeamB:
-    <video id="myVideo" width="128" height="256" loop autoplay>
+    <video id="towerTeamB" width="128" height="256">
       <source src="../assets/towercrush.mp4" type="video/mp4" />
       Your browser does not support HTML5 video.
     </video>
-    tower a: {{ towerA }} tower B: {{ towerB }} team won: {{ teamWon }}
+    tower a: {{ towerA }}, {{ towerATowerPosition }} tower B: {{ towerB }},
+    {{ towerBTowerPosition }} team won: {{ teamWon }}
   </div>
 </template>
 <script setup lang="ts">
@@ -48,9 +49,13 @@ import * as websockets from "@/ts/websockets";
 let currentQuestion = ref<Question>();
 let towerA = ref<number>();
 let towerB = ref<number>();
+let towerATowerPosition = ref<number>();
+let towerBTowerPosition = ref<number>();
 let teamWon = ref<string>("");
 let currentAnswers = ref<Map<string, string[]>>();
 let allMembersVoted = ref<boolean>(false);
+let towerTeamA: any;
+let towerTeamB: any;
 
 const props = defineProps<{
   lobby: string;
@@ -135,6 +140,19 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
   towerA.value = game.teamATowerSize;
   towerB.value = game.teamBTowerSize;
   teamWon.value = game.winnerTeam;
+  let teamAVideoTime = computeTowerTime(
+    game.initialTowerSize,
+    game.teamATowerSize
+  );
+  let teamBVideoTime = computeTowerTime(
+    game.initialTowerSize,
+    game.teamBTowerSize
+  );
+  console.error(teamAVideoTime);
+  console.error(teamBVideoTime);
+  towerATowerPosition.value = teamAVideoTime;
+  towerBTowerPosition.value = teamBVideoTime;
+  setCurTime(teamAVideoTime, teamBVideoTime);
   if (props.team === "teamA") {
     currentQuestion.value = game.rounds[game.currentQuestionTeamA].question;
     setAnswersTeamA(game);
@@ -192,6 +210,21 @@ function setAnswersTeamB(game: Game) {
   }
   allMembersVoted.value =
     game.rounds[game.currentQuestionTeamB].teamReadyForNextQuestion.teamB;
+}
+
+function computeTowerTime(initialTime: number, time: number) {
+  return 5.36 - (time / initialTime) * 5.36;
+}
+
+function setCurTime(towerTeamATime: number, towerTeamBTime: number) {
+  if (towerTeamA === undefined) {
+    towerTeamA = document.getElementById("towerTeamA");
+  }
+  if (towerTeamB === undefined) {
+    towerTeamB = document.getElementById("towerTeamB");
+  }
+  towerTeamA.currentTime = towerTeamATime;
+  towerTeamB.currentTime = towerTeamBTime;
 }
 </script>
 
