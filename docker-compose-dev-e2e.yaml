@@ -43,7 +43,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./data/overworld-db:/var/lib/postgresql/data
+      - ./data/towercrush-db:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
