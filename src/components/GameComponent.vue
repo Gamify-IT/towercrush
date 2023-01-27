@@ -6,6 +6,7 @@
           Leave Lobby
         </button>
         <button
+          v-if="teamWon === ''"
           class="btn btn-sm btn-primary"
           :disabled="!allMembersVoted"
           @click="nextQuestion"
@@ -145,13 +146,14 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
   towerA.value = game.teamATowerSize;
   towerB.value = game.teamBTowerSize;
   teamWon.value = game.winnerTeam;
-  if (teamWon.value !== "") {
-    towerTeamA.pause();
-    towerTeamB.pause();
-  }
+
   if (!setSpeed.value) {
     manipulateVideoSpeed(game.initialTowerSize);
     setSpeed.value = true;
+  }
+  if (teamWon.value !== "") {
+    towerTeamA.pause();
+    towerTeamB.pause();
   }
   if (game.teamATowerSize > game.initialTowerSize) {
     towerTeamA.pause();
