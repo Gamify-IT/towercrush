@@ -149,10 +149,10 @@ function handleUpdateLobbyMessage(messageWrapper: MessageWrapper) {
   players.value = updatedLobby.updatedLobby.players.map(
     (player) => player.playerName
   );
-  teamA.value = updatedLobby.updatedLobby.teamA.map(
+  teamA.value = updatedLobby.updatedLobby.teams.teamA.players.map(
     (player) => player.playerName
   );
-  teamB.value = updatedLobby.updatedLobby.teamB.map(
+  teamB.value = updatedLobby.updatedLobby.teams.teamB.players.map(
     (player) => player.playerName
   );
   readyPlayers.value = updatedLobby.updatedLobby.readyPlayers.map(

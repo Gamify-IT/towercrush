@@ -80,8 +80,7 @@ export class DeveloperMessage {
 }
 
 export class Lobby {
-  teamA: Player[];
-  teamB: Player[];
+  teams: { teamA: Team; teamB: Team };
   players: Player[];
   readyPlayers: Player[];
   createdAt: string;
@@ -89,16 +88,14 @@ export class Lobby {
   started: boolean;
 
   public constructor(
-    teamA: Player[],
-    teamB: Player[],
+    teams: { teamA: Team; teamB: Team },
     players: Player[],
     readyPlayers: Player[],
     createdAt: string,
     lobbyName: string,
     started: boolean
   ) {
-    this.teamA = teamA;
-    this.teamB = teamB;
+    this.teams = teams;
     this.players = players;
     this.readyPlayers = readyPlayers;
     this.createdAt = createdAt;
@@ -162,60 +159,45 @@ export class Vote {
 
 export class Round {
   question: Question;
-  teamAVotes: Vote[];
-  teamBVotes: Vote[];
+  teamVotes: { teamA: TeamVotes; teamB: TeamVotes };
   teamReadyForNextQuestion: { teamA: boolean; teamB: boolean };
 
   public constructor(
     question: Question,
-    teamAVotes: Vote[],
-    teamBVotes: Vote[],
+    teamVotes: { teamA: TeamVotes; teamB: TeamVotes },
     teamReadyForNextQuestion: { teamA: boolean; teamB: boolean }
   ) {
     this.question = question;
-    this.teamAVotes = teamAVotes;
-    this.teamBVotes = teamBVotes;
+    this.teamVotes = teamVotes;
     this.teamReadyForNextQuestion = teamReadyForNextQuestion;
   }
 }
 
 export class Game {
-  teamA: Player[];
-  teamB: Player[];
+  teams: { teamA: Team; teamB: Team };
   rounds: Round[];
-  currentQuestionTeamA: number;
-  currentQuestionTeamB: number;
-  teamATowerSize: number;
-  teamBTowerSize: number;
+  currentQuestion: { teamA: number; teamB: number };
+  towerSize: { teamA: number; teamB: number };
   winnerTeam: string;
   initialTowerSize: number;
-  teamAAnswerPoints: number;
-  teamBAnswerPoints: number;
+  answerPoints: { teamA: number; teamB: number };
 
   public constructor(
-    teamA: Player[],
-    teamB: Player[],
-    currentQuestionTeamA: number,
-    currentQuestionTeamB: number,
+    teams: { teamA: Team; teamB: Team },
+    currentQuestion: { teamA: number; teamB: number },
     rounds: Round[],
-    teamATowerSize: number,
-    teamBTowerSize: number,
+    towerSize: { teamA: number; teamB: number },
     winnerTeam: string,
     initialTowerSize: number,
-    teamAAnswerPoints: number,
-    teamBAnswerPoints: number
+    answerPoints: { teamA: number; teamB: number }
   ) {
-    this.teamA = teamA;
-    this.teamB = teamB;
-    this.currentQuestionTeamA = currentQuestionTeamA;
-    this.currentQuestionTeamB = currentQuestionTeamB;
+    this.teams = teams;
+    this.currentQuestion = currentQuestion;
     this.rounds = rounds;
-    this.teamATowerSize = teamATowerSize;
-    this.teamBTowerSize = teamBTowerSize;
+    this.towerSize = towerSize;
     this.winnerTeam = winnerTeam;
     this.initialTowerSize = initialTowerSize;
-    this.teamAAnswerPoints = teamAAnswerPoints;
-    this.teamBAnswerPoints = teamBAnswerPoints;
+    this.answerPoints = answerPoints;
   }
 }
 
@@ -226,5 +208,21 @@ export class AnswerVote {
   public constructor(answer: string, vote: Vote) {
     this.answer = answer;
     this.vote = vote;
+  }
+}
+
+export class Team {
+  players: Player[];
+
+  public constructor(players: Player[]) {
+    this.players = players;
+  }
+}
+
+export class TeamVotes {
+  votes: Vote[];
+
+  public constructor(votes: Vote[]) {
+    this.votes = votes;
   }
 }
