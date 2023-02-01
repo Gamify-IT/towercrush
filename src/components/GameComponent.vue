@@ -6,6 +6,7 @@
           Leave Lobby
         </button>
         <button
+          v-if="teamWon === ''"
           class="btn btn-sm btn-primary"
           :disabled="!allMembersVoted"
           @click="nextQuestion"
@@ -142,53 +143,61 @@ function handleMessageReceipt(messageBody: string) {
 function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let updateGameMessage = JSON.parse(messageBody.data) as UpdateGameMessage;
   let game = updateGameMessage.game;
-  towerA.value = game.teamATowerSize;
-  towerB.value = game.teamBTowerSize;
+  towerA.value = game.towerSize.teamA;
+  towerB.value = game.towerSize.teamB;
   teamWon.value = game.winnerTeam;
-  if (teamWon.value !== "") {
-    towerTeamA.pause();
-    towerTeamB.pause();
-  }
+
   if (!setSpeed.value) {
     manipulateVideoSpeed(game.initialTowerSize);
     setSpeed.value = true;
   }
-  if (game.teamATowerSize > game.initialTowerSize) {
+  pauseIfFinished();
+  pauseIfTooLarge(game);
+  updatePoints(
+    game.initialTowerSize,
+    game.answerPoints.teamA,
+    game.answerPoints.teamB
+  );
+  let teamKey = props.team as keyof typeof game.currentQuestion;
+  currentQuestion.value = game.rounds[game.currentQuestion[teamKey]].question;
+  setAnswers(game);
+}
+
+function pauseIfFinished() {
+  if (teamWon.value !== "") {
+    towerTeamA.pause();
+    towerTeamB.pause();
+  }
+}
+
+function pauseIfTooLarge(game: Game) {
+  if (game.towerSize.teamA > game.initialTowerSize) {
     towerTeamA.pause();
   } else if (teamWon.value === "") {
     towerTeamA.play();
   }
-  if (game.teamBTowerSize > game.initialTowerSize) {
+  if (game.towerSize.teamB > game.initialTowerSize) {
     towerTeamB.pause();
   } else if (teamWon.value === "") {
     towerTeamB.play();
   }
-  updatePoints(
-    game.initialTowerSize,
-    game.teamAAnswerPoints,
-    game.teamBAnswerPoints
-  );
-  if (props.team === "teamA") {
-    currentQuestion.value = game.rounds[game.currentQuestionTeamA].question;
-    setAnswersTeamA(game);
-  } else {
-    currentQuestion.value = game.rounds[game.currentQuestionTeamB].question;
-    setAnswersTeamB(game);
-  }
 }
 
-function setAnswersTeamA(game: Game) {
+function setAnswers(game: Game) {
   let tempAnswers: string[];
   let tempVotes: Vote[];
-  tempAnswers = game.rounds[game.currentQuestionTeamA].question.wrongAnswers;
-  let rightAnswer = game.rounds[game.currentQuestionTeamA].question.rightAnswer;
+  let teamKey = props.team as keyof typeof game.currentQuestion;
+  tempAnswers =
+    game.rounds[game.currentQuestion[teamKey]].question.wrongAnswers;
+  let rightAnswer =
+    game.rounds[game.currentQuestion[teamKey]].question.rightAnswer;
   tempAnswers.splice(
     Math.floor(Math.random() * (tempAnswers.length + 1)),
     0,
     rightAnswer
   );
-  tempVotes = game.rounds[game.currentQuestionTeamA].teamAVotes;
-
+  tempVotes =
+    game.rounds[game.currentQuestion[teamKey]].teamVotes[teamKey].votes;
   currentAnswers.value = new Map<string, string[]>();
   for (let answer of tempAnswers) {
     currentAnswers.value.set(answer, []);
@@ -199,32 +208,7 @@ function setAnswersTeamA(game: Game) {
     }
   }
   allMembersVoted.value =
-    game.rounds[game.currentQuestionTeamA].teamReadyForNextQuestion.teamA;
-}
-
-function setAnswersTeamB(game: Game) {
-  let tempAnswers: string[];
-  let tempVotes: Vote[];
-  tempAnswers = game.rounds[game.currentQuestionTeamB].question.wrongAnswers;
-  let rightAnswer = game.rounds[game.currentQuestionTeamB].question.rightAnswer;
-  tempAnswers.splice(
-    Math.floor(Math.random() * (tempAnswers.length + 1)),
-    0,
-    rightAnswer
-  );
-  tempVotes = game.rounds[game.currentQuestionTeamB].teamBVotes;
-
-  currentAnswers.value = new Map<string, string[]>();
-  for (let answer of tempAnswers) {
-    currentAnswers.value.set(answer, []);
-  }
-  for (let vote of tempVotes) {
-    if (currentAnswers.value.get(vote.answer) !== undefined) {
-      currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
-    }
-  }
-  allMembersVoted.value =
-    game.rounds[game.currentQuestionTeamB].teamReadyForNextQuestion.teamB;
+    game.rounds[game.currentQuestion[teamKey]].teamReadyForNextQuestion.teamA;
 }
 
 function manipulateVideoSpeed(targetLength: number) {
@@ -266,10 +250,10 @@ function updatePoints(
   if (towerTeamB === undefined) {
     towerTeamB = document.getElementById("towerTeamB");
   }
-  let idkA1 = newTeamAAnswerPoints / initTowerTime;
-  let idkB1 = newTeamBAnswerPoints / initTowerTime;
-  let newJumpA = towerTeamA.duration * idkA1;
-  let newJumpB = towerTeamB.duration * idkB1;
+  let relativePointsA = newTeamAAnswerPoints / initTowerTime;
+  let relativePointsB = newTeamBAnswerPoints / initTowerTime;
+  let newJumpA = towerTeamA.duration * relativePointsA;
+  let newJumpB = towerTeamB.duration * relativePointsB;
   towerTeamA.currentTime =
     towerTeamA.currentTime + previousJumpA.value - newJumpA;
   towerTeamB.currentTime =
