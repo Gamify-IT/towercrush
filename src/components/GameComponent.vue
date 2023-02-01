@@ -208,7 +208,9 @@ function setAnswers(game: Game) {
     }
   }
   allMembersVoted.value =
-    game.rounds[game.currentQuestion[teamKey]].teamReadyForNextQuestion.teamA;
+    game.rounds[game.currentQuestion[teamKey]].teamReadyForNextQuestion[
+      teamKey
+    ];
 }
 
 function manipulateVideoSpeed(targetLength: number) {
