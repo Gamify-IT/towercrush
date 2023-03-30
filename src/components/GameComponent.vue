@@ -40,12 +40,14 @@ import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
 import {
   Game,
   MessageWrapper,
+  OverworldResultDTO,
   Purpose,
   Question,
   UpdateGameMessage,
   Vote,
 } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
+import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
 
 let currentQuestion = ref<Question>();
 let towerA = ref<number>();
@@ -62,6 +64,7 @@ let previousJumpA = ref<number>(0);
 let previousJumpB = ref<number>(0);
 let previousAnswerPointsTeamA = ref<number>(0);
 let previousAnswerPointsTeamB = ref<number>(0);
+let configurationId = ref<string>("");
 
 const props = defineProps<{
   lobby: string;
@@ -99,8 +102,8 @@ function disconnectFromLobby() {
 
 function initGame() {
   let locationArray = window.location.toString().split("/");
-  const configurationId = locationArray[locationArray.length - 1];
-  websockets.initGame(props.lobby, configurationId);
+  configurationId.value = locationArray[locationArray.length - 1];
+  websockets.initGame(props.lobby, configurationId.value);
 }
 
 function putVote(answer: string) {
@@ -151,7 +154,7 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
     manipulateVideoSpeed(game.initialTowerSize);
     setSpeed.value = true;
   }
-  pauseIfFinished();
+  handleGameFinished();
   pauseIfTooLarge(game);
   updatePoints(
     game.initialTowerSize,
@@ -163,10 +166,27 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
   setAnswers(game);
 }
 
-function pauseIfFinished() {
+function handleGameFinished() {
   if (teamWon.value !== "") {
-    towerTeamA.pause();
-    towerTeamB.pause();
+    stopTowerAnimations();
+    saveWinnerTeam();
+  }
+}
+
+function stopTowerAnimations() {
+  towerTeamA.pause();
+  towerTeamB.pause();
+}
+
+function saveWinnerTeam() {
+  if (teamWon.value === props.team) {
+    let gameResultDTO = new OverworldResultDTO(
+      "TOWERCRUSH",
+      configurationId.value,
+      100,
+      localStorage.getItem("userId")!
+    );
+    postOverworldResultDTO(gameResultDTO);
   }
 }
 

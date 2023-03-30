@@ -29,38 +29,13 @@ export class Config implements IConfig {
   }
 }
 
-export class RoundResultDTO {
-  questionUUId: string;
-  question: Question;
-  answer: string;
-
-  public constructor(questionUUId: string, question: Question, answer: string) {
-    this.questionUUId = questionUUId;
-    this.question = question;
-    this.answer = answer;
-  }
-}
-
-export class GameResultDTO {
-  configurationAsUUID: string;
-  correctAnsweredQuestions: Array<RoundResultDTO>;
-  wrongAnsweredQuestions: Array<RoundResultDTO>;
-  score: number;
-  questionCount: number;
-
+export class OverworldResultDTO {
   public constructor(
-    configurationAsUUID: string,
-    correctAnsweredQuestions: Array<RoundResultDTO>,
-    wrongAnsweredQuestions: Array<RoundResultDTO>,
-    score: number,
-    questionCount: number
-  ) {
-    this.configurationAsUUID = configurationAsUUID;
-    this.correctAnsweredQuestions = correctAnsweredQuestions;
-    this.wrongAnsweredQuestions = wrongAnsweredQuestions;
-    this.score = score;
-    this.questionCount = questionCount;
-  }
+    public game: string,
+    public configurationId: string,
+    public score = 100,
+    public userId: string
+  ) {}
 }
 
 export class UpdateLobbyMessage {
