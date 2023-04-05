@@ -15,12 +15,14 @@
         </button>
       </div>
     </div>
-    <div v-if="currentQuestion">Question: {{ currentQuestion.text }}</div>
-    <div v-for="answer in currentAnswers" v-bind:key="answer">
-      <button class="accordion-button" @click="putVote(answer[0])">
-        {{ answer[0] }}
-      </button>
-      <div class="votes">{{ answer[1] }}</div>
+    <div v-if="teamWon === ''">
+      <div v-if="currentQuestion">Question: {{ currentQuestion.text }}</div>
+      <div v-for="answer in currentAnswers" v-bind:key="answer">
+        <button class="accordion-button" @click="putVote(answer[0])">
+          {{ answer[0] }}
+        </button>
+        <div class="votes">{{ answer[1] }}</div>
+      </div>
     </div>
     TeamA:
     <video class="towerVideo" id="towerTeamA" width="128" height="256">
