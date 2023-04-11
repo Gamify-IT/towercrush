@@ -192,6 +192,10 @@ function saveWinnerTeam() {
   }
 }
 
+/**
+ * This method stops the tower animations if the tower is too large
+ * @param game current game
+ */
 function pauseIfTooLarge(game: Game) {
   if (game.towerSize.teamA > game.initialTowerSize) {
     towerTeamA.pause();
