@@ -3,6 +3,9 @@ node_modules
 /dist
 /coverage
 
+# ingore docker volumes
+/data
+
 # local env files
 .env.local
 .env.*.local
