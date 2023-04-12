@@ -113,7 +113,7 @@ function putVote(answer: string) {
   websockets.putVote(
     props.lobby,
     props.team,
-    currentQuestion.value!.id!,
+    currentQuestion.value?.id as string,
     answer
   );
 }
@@ -187,7 +187,7 @@ function saveWinnerTeam() {
       "TOWERCRUSH",
       configurationId.value,
       100,
-      localStorage.getItem("userId")!
+      localStorage.getItem("userId") as string
     );
     postOverworldResultDTO(gameResultDTO);
   }

@@ -145,6 +145,5 @@ export function clearDeveloperLobby() {
 }
 
 function getPlayerUUID(): string {
-  const uuid = localStorage.getItem("userId")!;
-  return uuid;
+  return localStorage.getItem("userId") as string;
 }
