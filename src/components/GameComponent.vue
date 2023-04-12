@@ -17,11 +17,11 @@
     </div>
     <div v-if="teamWon === ''">
       <div v-if="currentQuestion">Question: {{ currentQuestion.text }}</div>
-      <div v-for="answer in currentAnswers" v-bind:key="answer">
-        <button class="accordion-button" @click="putVote(answer[0])">
-          {{ answer[0] }}
+      <div v-for="answer of sortedAnswers" v-bind:key="answer">
+        <button class="accordion-button" @click="putVote(answer)">
+          {{ answer }}
         </button>
-        <div class="votes">{{ answer[1] }}</div>
+        <div class="votes">{{ votes.get(answer) }}</div>
       </div>
     </div>
     TeamA:
@@ -57,7 +57,8 @@ let towerB = ref<number>();
 let towerATowerPosition = ref<number>();
 let towerBTowerPosition = ref<number>();
 let teamWon = ref<string>("");
-let currentAnswers = ref<Map<string, string[]>>();
+let votes = ref<Map<string, string[]>>();
+let sortedAnswers = ref<string[]>([]);
 let allMembersVoted = ref<boolean>(false);
 let towerTeamA: any;
 let towerTeamB: any;
@@ -215,24 +216,28 @@ function setAnswers(game: Game) {
   let teamKey = props.team as keyof typeof game.currentQuestion;
   tempAnswers =
     game.rounds[game.currentQuestion[teamKey]].question.wrongAnswers;
+  // add correct answer to the list of answers
   let rightAnswer =
     game.rounds[game.currentQuestion[teamKey]].question.rightAnswer;
-  tempAnswers.splice(
-    Math.floor(Math.random() * (tempAnswers.length + 1)),
-    0,
-    rightAnswer
-  );
+  tempAnswers.push(rightAnswer);
+  // Sort answers so they are displayed in a consistent order.
+  // Otherwise, the order will change on every update from the backend.
+  sortedAnswers.value = tempAnswers.sort();
+  // get votes for current question
   tempVotes =
     game.rounds[game.currentQuestion[teamKey]].teamVotes[teamKey].votes;
-  currentAnswers.value = new Map<string, string[]>();
+  // initialize votes map for every answer
+  votes.value = new Map<string, string[]>();
   for (let answer of tempAnswers) {
-    currentAnswers.value.set(answer, []);
+    votes.value.set(answer, []);
   }
+  // add every vote to the selected answer in the votes map
   for (let vote of tempVotes) {
-    if (currentAnswers.value.get(vote.answer) !== undefined) {
-      currentAnswers.value.get(vote.answer)?.push(vote.player.playerName);
+    if (votes.value.get(vote.answer) !== undefined) {
+      votes.value.get(vote.answer)?.push(vote.player.playerName);
     }
   }
+  // lookup if all players in the team have voted
   allMembersVoted.value =
     game.rounds[game.currentQuestion[teamKey]].teamReadyForNextQuestion[
       teamKey
