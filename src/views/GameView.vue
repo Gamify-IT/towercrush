@@ -1,7 +1,6 @@
 <template>
   <div v-if="currentState === GameState.START">
     <StartComponent @setStateToLobby="setStateToLobby"></StartComponent>
-    <DeveloperComponent></DeveloperComponent>
   </div>
   <div v-if="currentState === GameState.LOBBY">
     <LobbyComponent
@@ -25,7 +24,6 @@
 import { GameState } from "@/ts/models";
 import StartComponent from "@/components/StartComponent";
 import LobbyComponent from "@/components/LobbyComponent";
-import DeveloperComponent from "@/components/DeveloperComponent";
 import { ref } from "vue";
 import GameComponent from "@/components/GameComponent.vue";
 

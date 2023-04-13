@@ -1,28 +1,90 @@
 <template>
-  <div class="content" id="websocket">
-    <div class="row">
-      <div class="col">
-        Lobby Name: <input v-model="lobby" /> Player Name:
-        <input v-model="player" />
-        <br />
-        <button class="btn btn-sm btn-info" @click="connectToLobby">
-          Create/Join Lobby
-        </button>
-        <br />
-        <button
-          class="btn btn-sm btn-warning"
-          @click="connectToDeveloperLobby"
-          :disabled="joinedDevs"
-        >
-          Join Dev
-        </button>
+  <div class="start-component">
+    <div class="create-lobby-menu">
+      <div class="center">
+        <h1 class="heading">Create a new Lobby</h1>
+        <div class="create-lobby-form">
+          Lobby Name
+          <input class="input" v-model="lobby" />
+          Player Name
+          <input class="input" v-model="player" />
+          <br />
+          <button class="btn btn-sm btn-info" @click="connectToLobby">
+            Create/Join Lobby
+          </button>
+        </div>
       </div>
+    </div>
+    <div class="content">
+      <h1 class="heading">Available Lobbies</h1>
+      <table class="lobby-table">
+        <tr>
+          <th>Lobby Name</th>
+          <th>Players</th>
+          <th>Started</th>
+          <th>Join</th>
+        </tr>
+        <tr v-for="lobby in lobbies" :key="lobby.lobbyName">
+          <td>{{ lobby.lobbyName }}</td>
+          <td>{{ lobby.playerNames?.join(", ") }}</td>
+          <td>{{ lobby.started }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-info"
+              @click="clickLobby(lobby.lobbyName)"
+            >
+              Join
+            </button>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, defineEmits } from "vue";
+import { defineEmits, onBeforeUnmount, onMounted, ref } from "vue";
 import * as websockets from "@/ts/websockets";
+import { DeveloperMessage, MessageWrapper, Purpose } from "@/ts/models";
+const lobbies = ref();
+
+/**
+ * Everytime this components mounts this method adds the local handler function
+ */
+onMounted(() => {
+  websockets.addHandleFunction(handleMessageReceipt);
+  subscribeToLobbyList();
+});
+
+/**
+ * Everytime this components unmounts this method removes the local handler function
+ */
+onBeforeUnmount(() => {
+  websockets.removeHandleFunction(handleMessageReceipt);
+});
+
+/**
+ * This method handles all incoming messages from the backend
+ * @param messageBody message from the backend as string
+ */
+function handleMessageReceipt(messageBody: string) {
+  console.log("handle received developer message!", messageBody);
+  try {
+    let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
+    let purpose = messageWrapper.purpose;
+    switch (purpose) {
+      case Purpose.DEVELOPER_MESSAGE:
+        console.log("case: DEVELOPER_MESSAGE", messageWrapper.data);
+        lobbies.value = (
+          JSON.parse(messageWrapper.data) as DeveloperMessage
+        ).lobbyList;
+        break;
+      default:
+        console.log("no case found: ", messageBody);
+    }
+  } catch (error) {
+    console.error("error: ", error);
+  }
+}
 
 const lobby = ref("");
 const player = ref(""); //temp
@@ -33,6 +95,14 @@ const joinedDevs = ref(false);
 const emit = defineEmits<{
   (e: "setStateToLobby", lobby: string, player: string): void;
 }>();
+
+/**
+ * Handler for when user clicks on a lobby in the list.
+ */
+function clickLobby(lobbyName: string) {
+  lobby.value = lobbyName;
+  connectToLobby();
+}
 
 /**
  * This methods connects and subscribes to the fitting paths if a player wants to join a lobby
@@ -56,7 +126,7 @@ function connectToLobby() {
 /**
  * This method connects and subscribes to the fitting paths if a developer wants to get lobby infos
  */
-function connectToDeveloperLobby() {
+function subscribeToLobbyList() {
   websockets
     .connectDeveloper()
     .then(() => {
@@ -69,24 +139,56 @@ function connectToDeveloperLobby() {
 </script>
 
 <style scoped>
-div {
-  /*border: black solid 1px;*/
+.heading {
+  color: var(--text-main);
+  font-size: 2em;
+  margin-bottom: 0.5em;
+}
+
+.create-lobby-menu {
+  display: flex;
+}
+
+.center {
+  margin: 2em auto;
+  padding: 2em;
+  background-color: var(--background-sub);
+  border-radius: 0.5em;
+}
+
+.create-lobby-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  margin-bottom: 1em;
+  border: 1px solid transparent;
+  color: var(--text-main);
+  background-color: var(--background-main);
+}
+
+.input:focus {
+  outline: none;
+  border: 1px solid var(--text-main);
 }
 
 .content {
-  background-color: var(--background-main);
-  height: 46.5vh;
-  max-width: 100vw;
   padding: 1vw;
-  color: var(--text-main);
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.lobby-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lobby-table th {
+  background-color: var(--background-sub);
+  padding: 0.5em;
+}
+
+.lobby-table td {
+  border: 1px solid var(--background-sub);
+  padding: 0.5em;
 }
 </style>
