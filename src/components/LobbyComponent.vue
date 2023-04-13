@@ -17,7 +17,7 @@
             </td>
           </tr>
         </table>
-        <table class="lobby-table">
+        <table class="lobby-table wide-table">
           <tr>
             <th>
               <span class="table-title">Team A</span>
@@ -39,7 +39,7 @@
             <td>&nbsp;</td>
           </tr>
         </table>
-        <table class="lobby-table">
+        <table class="lobby-table wide-table">
           <tr>
             <th>
               <span class="table-title">Team B</span>
@@ -240,6 +240,10 @@ div {
   float: left;
   width: 20em;
   border-collapse: collapse;
+}
+
+.wide-table {
+  width: 30em;
 }
 
 .lobby-table th {
