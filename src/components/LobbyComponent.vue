@@ -1,7 +1,79 @@
 <template>
   <div class="content" id="websocket">
-    <div class="row">
-      <div class="col">
+    <div class="center">
+      <h1>Lobby: {{ lobby }}</h1>
+
+      <div class="teams">
+        <table class="lobby-table all-players">
+          <tr>
+            <th>
+              <span class="table-title">Players</span>
+            </th>
+          </tr>
+          <tr v-for="player in players" :key="player">
+            <td>
+              {{ player }}
+              <b class="check" v-if="readyPlayers.includes(player)">&check;</b>
+            </td>
+          </tr>
+        </table>
+        <table class="lobby-table">
+          <tr>
+            <th>
+              <span class="table-title">Team A</span>
+              <button
+                class="btn btn-sm btn-danger table-button"
+                @click="joinTeam('teamA')"
+              >
+                Join
+              </button>
+            </th>
+          </tr>
+          <tr v-for="player in teamA" :key="player">
+            <td>
+              {{ player }}
+              <b class="check" v-if="readyPlayers.includes(player)">&check;</b>
+            </td>
+          </tr>
+          <tr v-for="i in players.length - teamA.length" v-bind:key="i">
+            <td>&nbsp;</td>
+          </tr>
+        </table>
+        <table class="lobby-table">
+          <tr>
+            <th>
+              <span class="table-title">Team B</span>
+              <button
+                class="btn btn-sm btn-primary table-button"
+                @click="joinTeam('teamB')"
+              >
+                Join
+              </button>
+            </th>
+          </tr>
+          <tr v-for="player in teamB" :key="player">
+            <td>
+              {{ player }}
+              <b class="check" v-if="readyPlayers.includes(player)">&check;</b>
+            </td>
+          </tr>
+          <tr v-for="i in players.length - teamB.length" v-bind:key="i">
+            <td>&nbsp;</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-sm btn-dark" @click="disconnectFromLobby">
+          Leave Lobby
+        </button>
+        <button
+          class="ready-button btn btn-sm btn-outline-info"
+          @click="changeReady()"
+          :disabled="!props.team.includes('team')"
+        >
+          Ready
+        </button>
         <button
           class="btn btn-sm btn-success"
           @click="startLobby"
@@ -9,37 +81,8 @@
         >
           Start Lobby
         </button>
-        <button class="btn btn-sm btn-primary" @click="disconnectFromLobby">
-          Leave Lobby
-        </button>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
-        <button class="btn btn-sm btn-danger" @click="joinTeam('teamA')">
-          Join TeamA
-        </button>
-        <button class="btn btn-sm btn-primary" @click="joinTeam('teamB')">
-          Join TeamB
-        </button>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <button
-          class="btn btn-sm btn-outline-info"
-          @click="changeReady()"
-          :disabled="!props.team.includes('team')"
-        >
-          Ready:
-        </button>
-        {{ readyPlayers }}
-      </div>
-    </div>
-    Messages: {{ messages }}<br />
-    Team A: {{ teamA }}<br />
-    Team B: {{ teamB }}<br />
-    Members: {{ players }}<br />
   </div>
 </template>
 <script setup lang="ts">
@@ -175,6 +218,61 @@ div {
   max-width: 100vw;
   padding: 1vw;
   color: var(--text-main);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.center {
+  margin: 0 auto;
+}
+
+.teams {
+  margin: 1em 0;
+  display: flex;
+}
+
+.all-players {
+  margin-right: 0.5em;
+}
+
+.lobby-table {
+  float: left;
+  width: 20em;
+  border-collapse: collapse;
+}
+
+.lobby-table th {
+  background-color: var(--background-sub);
+  padding: 0.5em;
+  display: flex;
+  height: 3em;
+}
+
+.lobby-table td {
+  border: 1px solid var(--background-sub);
+  padding: 0.5em;
+}
+
+.table-title {
+  margin: auto 0;
+  flex-grow: 1;
+}
+
+.table-button {
+  flex-grow: 0;
+}
+
+.actions {
+  display: flex;
+}
+
+.ready-button {
+  margin: 0 0.5em 0 auto;
+}
+
+.check {
+  color: #46e800;
 }
 
 @keyframes spin {
