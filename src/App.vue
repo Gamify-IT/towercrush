@@ -48,7 +48,7 @@ function closeGame() {
 
 .navbar {
   padding-left: 1vw;
-  height: 7vh;
+  height: 4em;
 }
 
 #towercrush-game {
