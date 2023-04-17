@@ -472,11 +472,11 @@ h4 {
 }
 
 .user-team-a .tower-team-b .time {
-  line-height: 2em;
+  line-height: 3em;
 }
 
 .user-team-b .tower-team-a .time {
-  line-height: 2em;
+  line-height: 3em;
 }
 
 @keyframes spin {
