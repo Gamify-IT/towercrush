@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main">
     <nav
       class="navbar navbar-expand-lg navbar-light bg-dark"
       aria-label="Navigation Bar"
@@ -39,9 +39,16 @@ function closeGame() {
 </script>
 
 <style scoped>
+.main {
+  background-color: var(--background-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  width: 100vw;
+}
+
 .navbar {
   padding-left: 1vw;
-  height: 7vh;
+  height: 4em;
 }
 
 #towercrush-game {
@@ -75,7 +82,7 @@ function closeGame() {
 /* These are global variables for the dark mode, make sure to add local style to the scoped style above */
 :root {
   --background-main: #ffffff;
-  --background-sub: #ffffff;
+  --background-sub: #dddddd;
   --border-main: #000000;
   --border-sub: #000000;
   --text-main: #222;
