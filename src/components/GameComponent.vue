@@ -97,7 +97,7 @@
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
           </video>
-          <div>{{ towerA }} seconds</div>
+          <div>{{ towerB }} seconds</div>
         </div>
       </div>
     </div>
