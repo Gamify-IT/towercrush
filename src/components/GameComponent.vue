@@ -11,9 +11,9 @@
       <div class="status">
         Question {{ currentQuestionIndex + 1 }} of {{ rounds }}:
       </div>
-      <h3 class="question" v-if="currentQuestion">
+      <h4 class="question" v-if="currentQuestion">
         {{ currentQuestion.text }}
-      </h3>
+      </h4>
       <ol class="answers" type="a">
         <li
           class="answer"
@@ -50,10 +50,30 @@
       </p>
     </div>
     <div class="game-status">
+      <div class="game-result section" v-if="teamWon !== ''">
+        <div v-if="teamWon === 'teamA'">
+          <h4>Game Result: Team A won!</h4>
+          <p class="hint">
+            Team A answered more questions correctly than Team B.
+          </p>
+        </div>
+        <div v-if="teamWon === 'teamB'">
+          <h4>Game Result: Team B won!</h4>
+          <p class="hint">
+            Team B answered more questions correctly than Team A.
+          </p>
+        </div>
+        <div v-if="teamWon === 'draw'">
+          <h4>Game Result: Draw!</h4>
+          <p class="hint">
+            Both teams answered the same number of questions correctly.
+          </p>
+        </div>
+      </div>
       <div class="my-tower-status section">
         <div v-if="props.team === 'teamA'">
-          <h3>Your Tower (Team A)</h3>
-          {{ towerA }} seconds remaining until your tower is crushed.
+          <h4>Your Tower (Team A)</h4>
+          <b>{{ towerA }}</b> seconds remaining until your tower is crushed.
           <p class="hint">
             Answer the questions correctly to keep your tower from being
             crushed.<br />
@@ -64,7 +84,7 @@
       </div>
       <div class="tower-status">
         <div class="tower section">
-          <h3>Team A</h3>
+          <h4>Team A</h4>
           <video class="towerVideo" id="towerTeamA" width="256" height="512">
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
@@ -72,7 +92,7 @@
           <div>{{ towerA }} seconds</div>
         </div>
         <div class="tower section">
-          <h3>Team B</h3>
+          <h4>Team B</h4>
           <video class="towerVideo" id="towerTeamB" width="256" height="512">
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
@@ -350,6 +370,10 @@ function updatePoints(
 <style scoped>
 .nav-actions {
   padding: 0.5em 1em;
+}
+
+h4 {
+  font-weight: normal;
 }
 
 .content {
