@@ -72,32 +72,34 @@
       </div>
       <div class="my-tower-status section">
         <div v-if="props.team === 'teamA'">
-          <h4>Your Tower (Team A)</h4>
-          <b>{{ towerA }}</b> seconds remaining until your tower is crushed.
-          <p class="hint">
-            Answer the questions correctly to keep your tower from being
-            crushed.<br />
-            Answer more questions correctly than the other team to win.<br />
-            If your tower is crushed, you lose.
-          </p>
+          <h4>You are in Team A</h4>
+        </div>
+        <div v-else>
+          <h4>You are in Team B</h4>
         </div>
       </div>
-      <div class="tower-status">
-        <div class="tower section">
+      <div
+        :class="{
+          'tower-status': true,
+          'user-team-a': props.team === 'teamA',
+          'user-team-b': props.team === 'teamB',
+        }"
+      >
+        <div class="tower section tower-team-a">
           <h4>Team A</h4>
-          <video class="towerVideo" id="towerTeamA" width="256" height="512">
+          <video class="towerVideo" id="towerTeamA" width="512" height="1024">
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
           </video>
-          <div>{{ towerA }} seconds</div>
+          <div class="time">{{ towerA }} seconds</div>
         </div>
-        <div class="tower section">
+        <div class="tower section tower-team-b">
           <h4>Team B</h4>
-          <video class="towerVideo" id="towerTeamB" width="256" height="512">
+          <video class="towerVideo" id="towerTeamB" width="512" height="1024">
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
           </video>
-          <div>{{ towerB }} seconds</div>
+          <div class="time">{{ towerB }} seconds</div>
         </div>
       </div>
     </div>
@@ -435,6 +437,46 @@ h4 {
   display: flex;
   flex-direction: row;
   gap: 1em;
+}
+
+.user-team-b {
+  flex-direction: row-reverse;
+}
+
+.user-team-a .tower-team-a video {
+  width: 15em;
+  height: 30em;
+}
+
+.user-team-b .tower-team-b video {
+  width: 15em;
+  height: 30em;
+}
+
+.user-team-a .tower-team-b video {
+  width: 10em;
+  height: 30em;
+}
+
+.user-team-b .tower-team-a video {
+  width: 10em;
+  height: 30em;
+}
+
+.user-team-a .tower-team-a .time {
+  font-size: 2em;
+}
+
+.user-team-b .tower-team-b .time {
+  font-size: 2em;
+}
+
+.user-team-a .tower-team-b .time {
+  line-height: 2em;
+}
+
+.user-team-b .tower-team-a .time {
+  line-height: 2em;
 }
 
 @keyframes spin {
