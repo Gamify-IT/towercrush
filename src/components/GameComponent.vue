@@ -222,7 +222,8 @@ function setAnswers(game: Game) {
   tempAnswers.push(rightAnswer);
   // Sort answers so they are displayed in a consistent order.
   // Otherwise, the order will change on every update from the backend.
-  sortedAnswers.value = tempAnswers.sort();
+  tempAnswers.sort();
+  sortedAnswers.value = tempAnswers;
   // get votes for current question
   tempVotes =
     game.rounds[game.currentQuestion[teamKey]].teamVotes[teamKey].votes;
