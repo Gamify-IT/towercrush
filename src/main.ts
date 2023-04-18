@@ -12,8 +12,11 @@ import "vue-sidebar-menu/dist/vue-sidebar-menu.css";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
+import Particles from "vue3-particles";
+
 const app = createApp(App);
 app.use(BootstrapVue3);
 app.use(Toast);
 app.use(VueSidebarMenu);
+app.use(Particles as any);
 app.use(router).mount("#app");

@@ -103,8 +103,13 @@
         </div>
       </div>
     </div>
-    <!--tower a: {{ towerA }}, {{ towerATowerPosition }} tower B: {{ towerB }},
-    {{ towerBTowerPosition }} team won: {{ teamWon }}-->
+    <Particles
+      id="tsparticles"
+      v-if="props.team === teamWon"
+      :particlesInit="particlesInit"
+      :particlesLoaded="particlesLoaded"
+      :options="confettiConfig"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -120,6 +125,15 @@ import {
 } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
+import { loadFull } from "tsparticles";
+
+async function particlesInit(engine: any) {
+  await loadFull(engine);
+}
+
+function particlesLoaded(container: any) {
+  console.log("Particles container loaded", container);
+}
 
 let currentQuestion = ref<Question>();
 let currentQuestionIndex = ref<number>(0);
@@ -243,6 +257,7 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
 
 function handleGameFinished() {
   if (teamWon.value !== "") {
+    console.log("finished");
     stopTowerAnimations();
     saveWinnerTeam();
   }
@@ -367,6 +382,105 @@ function updatePoints(
   previousJumpA.value = newJumpA;
   previousJumpB.value = newJumpB;
 }
+
+const confettiConfig = {
+  fullScreen: {
+    zIndex: 1,
+  },
+  particles: {
+    color: {
+      value: ["#FFFFFF", "#FFd700", "#FF0000", "#0000FF"],
+    },
+    move: {
+      direction: "bottom",
+      enable: true,
+      outModes: {
+        default: "out",
+      },
+      size: true,
+      speed: {
+        min: 1,
+        max: 3,
+      },
+    },
+    number: {
+      value: 200,
+      density: {
+        enable: true,
+        area: 800,
+      },
+    },
+    opacity: {
+      value: 1,
+      animation: {
+        enable: false,
+        startValue: "max",
+        destroy: "min",
+        speed: 0.3,
+        sync: true,
+      },
+    },
+    rotate: {
+      value: {
+        min: 0,
+        max: 360,
+      },
+      direction: "random",
+      move: true,
+      animation: {
+        enable: true,
+        speed: 60,
+      },
+    },
+    tilt: {
+      direction: "random",
+      enable: true,
+      move: true,
+      value: {
+        min: 0,
+        max: 360,
+      },
+      animation: {
+        enable: true,
+        speed: 60,
+      },
+    },
+    shape: {
+      type: ["circle", "square", "triangle"],
+      options: {},
+    },
+    size: {
+      value: {
+        min: 6,
+        max: 12,
+      },
+    },
+    roll: {
+      darken: {
+        enable: true,
+        value: 30,
+      },
+      enlighten: {
+        enable: true,
+        value: 30,
+      },
+      enable: true,
+      speed: {
+        min: 15,
+        max: 25,
+      },
+    },
+    wobble: {
+      distance: 30,
+      enable: true,
+      move: true,
+      speed: {
+        min: -15,
+        max: 15,
+      },
+    },
+  },
+};
 </script>
 
 <style scoped>
