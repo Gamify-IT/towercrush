@@ -1,8 +1,8 @@
 <template>
-  <div v-if="currentState === GameState.START">
+  <div v-if="currentState === GameState.START" class="flex-grow-1">
     <StartComponent @setStateToLobby="setStateToLobby"></StartComponent>
   </div>
-  <div v-if="currentState === GameState.LOBBY">
+  <div v-if="currentState === GameState.LOBBY" class="flex-grow-1">
     <LobbyComponent
       @setStateToStart="setStateToStart"
       @setStateToGame="setStateToGame"
@@ -12,7 +12,10 @@
       :team="team"
     ></LobbyComponent>
   </div>
-  <div v-if="currentState === GameState.GAME">
+  <div
+    v-if="currentState === GameState.GAME"
+    class="flex-grow-1 d-flex flex-column"
+  >
     <GameComponent
       @setStateToStart="setStateToStart"
       :lobby="lobby"

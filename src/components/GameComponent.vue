@@ -1,40 +1,115 @@
 <template>
-  <div class="content" id="websocket">
-    <div class="row">
-      <div class="col">
-        <button class="btn btn-sm btn-danger" @click="disconnectFromLobby">
-          Leave Lobby
-        </button>
-        <button
-          v-if="teamWon === ''"
-          class="btn btn-sm btn-primary"
-          :disabled="!allMembersVoted"
-          @click="nextQuestion"
+  <div class="nav-actions">
+    <div class="col">
+      <button class="btn btn-sm btn-danger" @click="disconnectFromLobby">
+        Leave Lobby
+      </button>
+    </div>
+  </div>
+  <div class="content flex-grow-1 d-flex">
+    <div class="question-dialog-box section" v-if="teamWon === ''">
+      <div class="status">
+        Question {{ currentQuestionIndex + 1 }} of {{ rounds }}:
+      </div>
+      <h4 class="question" v-if="currentQuestion">
+        {{ currentQuestion.text }}
+      </h4>
+      <ol class="answers" type="a">
+        <li
+          class="answer"
+          v-for="answer of sortedAnswers"
+          v-bind:key="answer"
+          @click="putVote(answer)"
         >
-          Next Question
-        </button>
+          <div class="answer-text">{{ answer }}</div>
+          <div class="votes">
+            <b>
+              {{ votes.get(answer).length }} votes<span
+                v-if="votes.get(answer).length > 0"
+                >:
+              </span>
+            </b>
+            <span v-if="votes.get(answer).length > 0">
+              {{ votes.get(answer).join(", ") }}
+            </span>
+          </div>
+        </li>
+      </ol>
+      <p class="hint">Click on an answer to vote for it.</p>
+      <button
+        v-if="teamWon === ''"
+        class="btn btn-sm btn-primary"
+        :disabled="!allMembersVoted"
+        @click="nextQuestion"
+      >
+        Submit Answer
+      </button>
+      <p class="hint">
+        When all your team mates have cast their vote, you can submit the answer
+        and continue with the next question.
+      </p>
+    </div>
+    <div class="game-status">
+      <div class="game-result section" v-if="teamWon !== ''">
+        <div v-if="teamWon === 'teamA'">
+          <h4>Game Result: Team A won!</h4>
+          <p class="hint">
+            Team A answered more questions correctly than Team B.
+          </p>
+        </div>
+        <div v-if="teamWon === 'teamB'">
+          <h4>Game Result: Team B won!</h4>
+          <p class="hint">
+            Team B answered more questions correctly than Team A.
+          </p>
+        </div>
+        <div v-if="teamWon === 'draw'">
+          <h4>Game Result: Draw!</h4>
+          <p class="hint">
+            Both teams answered the same number of questions correctly.
+          </p>
+        </div>
+      </div>
+      <div class="my-tower-status section">
+        <div v-if="props.team === 'teamA'">
+          <h4>You are in Team A</h4>
+        </div>
+        <div v-else>
+          <h4>You are in Team B</h4>
+        </div>
+      </div>
+      <div
+        :class="{
+          'tower-status': true,
+          'user-team-a': props.team === 'teamA',
+          'user-team-b': props.team === 'teamB',
+        }"
+      >
+        <div class="tower section tower-team-a">
+          <h4>Team A</h4>
+          <video class="towerVideo" id="towerTeamA" width="512" height="1024">
+            <source src="../assets/towercrush.mp4" type="video/mp4" />
+            Your browser does not support HTML5 video.
+          </video>
+          <div class="time">{{ towerA }} seconds</div>
+        </div>
+        <div class="tower section tower-team-b">
+          <h4>Team B</h4>
+          <video class="towerVideo" id="towerTeamB" width="512" height="1024">
+            <source src="../assets/towercrush.mp4" type="video/mp4" />
+            Your browser does not support HTML5 video.
+          </video>
+          <div class="time">{{ towerB }} seconds</div>
+        </div>
       </div>
     </div>
-    <div v-if="teamWon === ''">
-      <div v-if="currentQuestion">Question: {{ currentQuestion.text }}</div>
-      <div v-for="answer of sortedAnswers" v-bind:key="answer">
-        <button class="accordion-button" @click="putVote(answer)">
-          {{ answer }}
-        </button>
-        <div class="votes">{{ votes.get(answer) }}</div>
-      </div>
-    </div>
-    TeamA:
-    <video class="towerVideo" id="towerTeamA" width="128" height="256">
-      <source src="../assets/towercrush.mp4" type="video/mp4" />
-      Your browser does not support HTML5 video.</video
-    >TeamB:
-    <video class="towerVideo" id="towerTeamB" width="128" height="256">
-      <source src="../assets/towercrush.mp4" type="video/mp4" />
-      Your browser does not support HTML5 video.
-    </video>
-    tower a: {{ towerA }}, {{ towerATowerPosition }} tower B: {{ towerB }},
-    {{ towerBTowerPosition }} team won: {{ teamWon }}
+    <Particles
+      id="tsparticles"
+      v-if="props.team === teamWon"
+      :particlesInit="particlesInit"
+      :particlesLoaded="particlesLoaded"
+      :options="confettiConfig"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -50,12 +125,21 @@ import {
 } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
+import { loadFull } from "tsparticles";
+
+async function particlesInit(engine: any) {
+  await loadFull(engine);
+}
+
+function particlesLoaded(container: any) {
+  console.log("Particles container loaded", container);
+}
 
 let currentQuestion = ref<Question>();
+let currentQuestionIndex = ref<number>(0);
+let rounds = ref<number>(1);
 let towerA = ref<number>();
 let towerB = ref<number>();
-let towerATowerPosition = ref<number>();
-let towerBTowerPosition = ref<number>();
 let teamWon = ref<string>("");
 let votes = ref<Map<string, string[]>>();
 let sortedAnswers = ref<string[]>([]);
@@ -165,12 +249,15 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
     game.answerPoints.teamB
   );
   let teamKey = props.team as keyof typeof game.currentQuestion;
+  rounds.value = game.rounds.length;
+  currentQuestionIndex.value = game.currentQuestion[teamKey];
   currentQuestion.value = game.rounds[game.currentQuestion[teamKey]].question;
   setAnswers(game);
 }
 
 function handleGameFinished() {
   if (teamWon.value !== "") {
+    console.log("finished");
     stopTowerAnimations();
     saveWinnerTeam();
   }
@@ -295,23 +382,215 @@ function updatePoints(
   previousJumpA.value = newJumpA;
   previousJumpB.value = newJumpB;
 }
+
+const confettiConfig = {
+  fullScreen: {
+    zIndex: 1,
+  },
+  particles: {
+    color: {
+      value: ["#FFFFFF", "#FFd700", "#FF0000", "#0000FF"],
+    },
+    move: {
+      direction: "bottom",
+      enable: true,
+      outModes: {
+        default: "out",
+      },
+      size: true,
+      speed: {
+        min: 1,
+        max: 3,
+      },
+    },
+    number: {
+      value: 200,
+      density: {
+        enable: true,
+        area: 800,
+      },
+    },
+    opacity: {
+      value: 1,
+      animation: {
+        enable: false,
+        startValue: "max",
+        destroy: "min",
+        speed: 0.3,
+        sync: true,
+      },
+    },
+    rotate: {
+      value: {
+        min: 0,
+        max: 360,
+      },
+      direction: "random",
+      move: true,
+      animation: {
+        enable: true,
+        speed: 60,
+      },
+    },
+    tilt: {
+      direction: "random",
+      enable: true,
+      move: true,
+      value: {
+        min: 0,
+        max: 360,
+      },
+      animation: {
+        enable: true,
+        speed: 60,
+      },
+    },
+    shape: {
+      type: ["circle", "square", "triangle"],
+      options: {},
+    },
+    size: {
+      value: {
+        min: 6,
+        max: 12,
+      },
+    },
+    roll: {
+      darken: {
+        enable: true,
+        value: 30,
+      },
+      enlighten: {
+        enable: true,
+        value: 30,
+      },
+      enable: true,
+      speed: {
+        min: 15,
+        max: 25,
+      },
+    },
+    wobble: {
+      distance: 30,
+      enable: true,
+      move: true,
+      speed: {
+        min: -15,
+        max: 15,
+      },
+    },
+  },
+};
 </script>
 
 <style scoped>
-div {
-  /*border: black solid 1px;*/
+.nav-actions {
+  padding: 0.5em 1em;
+}
+
+h4 {
+  font-weight: normal;
 }
 
 .content {
+  background-color: var(--background-sub);
+  gap: 1em;
+  padding: 1em;
+}
+
+.content > *:first-child {
+  margin-left: auto;
+}
+
+.content *:last-child {
+  margin-right: auto;
+}
+
+.question-dialog-box {
+  margin-bottom: auto;
+}
+
+.section {
   background-color: var(--background-main);
-  height: 93vh;
-  max-width: 100vw;
-  padding: 1vw;
-  color: var(--text-main);
+  border-radius: 0.5em;
+  padding: 1em;
+}
+
+.question {
+  margin-bottom: 0.5em;
+}
+
+.answer {
+  margin: 1em 0;
+  padding-left: 0.5em;
+  cursor: pointer;
+}
+
+.answer:hover .answer-text {
+  text-decoration: underline;
 }
 
 .votes {
-  color: #870c0c;
+  color: var(--text-sub);
+  font-size: 0.8em;
+}
+
+.hint {
+  font-size: 0.8em;
+  font-style: italic;
+  margin: 0.5em 0;
+}
+
+.game-status {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.tower-status {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+
+.user-team-b {
+  flex-direction: row-reverse;
+}
+
+.user-team-a .tower-team-a video {
+  width: 15em;
+  height: 30em;
+}
+
+.user-team-b .tower-team-b video {
+  width: 15em;
+  height: 30em;
+}
+
+.user-team-a .tower-team-b video {
+  width: 10em;
+  height: 30em;
+}
+
+.user-team-b .tower-team-a video {
+  width: 10em;
+  height: 30em;
+}
+
+.user-team-a .tower-team-a .time {
+  font-size: 2em;
+}
+
+.user-team-b .tower-team-b .time {
+  font-size: 2em;
+}
+
+.user-team-a .tower-team-b .time {
+  line-height: 3em;
+}
+
+.user-team-b .tower-team-a .time {
+  line-height: 3em;
 }
 
 @keyframes spin {

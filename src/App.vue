@@ -19,7 +19,7 @@
         </b-button>
       </nav>
     </nav>
-    <div>
+    <div class="flex-grow-1 d-flex flex-column">
       <GameView></GameView>
     </div>
   </div>
@@ -44,6 +44,9 @@ function closeGame() {
   color: var(--text-main);
   min-height: 100vh;
   width: 100vw;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .navbar {
@@ -86,6 +89,7 @@ function closeGame() {
   --border-main: #000000;
   --border-sub: #000000;
   --text-main: #222;
+  --text-sub: #444;
   --element-size: 4vw;
   --button-main: #2f2f2f;
 }
@@ -96,6 +100,7 @@ function closeGame() {
   --border-main: #1f1f1f;
   --border-sub: #3f3f3f;
   --text-main: #ddd;
+  --text-sub: #aaa;
   --button-main: #ffffff;
 }
 </style>
