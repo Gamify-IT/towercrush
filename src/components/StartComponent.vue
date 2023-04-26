@@ -71,15 +71,13 @@ function handleMessageReceipt(messageBody: string) {
   try {
     let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
     let purpose = messageWrapper.purpose;
-    switch (purpose) {
-      case Purpose.DEVELOPER_MESSAGE:
-        console.log("case: DEVELOPER_MESSAGE", messageWrapper.data);
-        lobbies.value = (
-          JSON.parse(messageWrapper.data) as DeveloperMessage
-        ).lobbyList;
-        break;
-      default:
-        console.log("no case found: ", messageBody);
+    if (purpose == Purpose.DEVELOPER_MESSAGE) {
+      console.log("case: DEVELOPER_MESSAGE", messageWrapper.data);
+      lobbies.value = (
+        JSON.parse(messageWrapper.data) as DeveloperMessage
+      ).lobbyList;
+    } else {
+      console.log("no case found: ", messageBody);
     }
   } catch (error) {
     console.error("error: ", error);
