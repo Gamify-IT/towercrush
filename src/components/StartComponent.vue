@@ -68,6 +68,8 @@ onBeforeUnmount(() => {
  */
 function handleMessageReceipt(messageBody: string) {
   console.log("handle received developer message!", messageBody);
+  const locationArray = window.location.toString().split("/");
+  const configurationUUID = locationArray[locationArray.length - 1];
   try {
     let messageWrapper = JSON.parse(messageBody) as MessageWrapper;
     let purpose = messageWrapper.purpose;
@@ -75,7 +77,11 @@ function handleMessageReceipt(messageBody: string) {
       console.log("case: DEVELOPER_MESSAGE", messageWrapper.data);
       lobbies.value = (
         JSON.parse(messageWrapper.data) as DeveloperMessage
-      ).lobbyList;
+      ).lobbyList.filter((lobby) => {
+        if (configurationUUID === lobby.configurationUUID) {
+          return lobby;
+        }
+      });
     } else {
       console.log("no case found: ", messageBody);
     }

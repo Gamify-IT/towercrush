@@ -61,6 +61,7 @@ export class Lobby {
   createdAt: string;
   lobbyName: string;
   started: boolean;
+  configurationUUID: string;
 
   public constructor(
     teams: { teamA: Team; teamB: Team },
@@ -68,7 +69,8 @@ export class Lobby {
     readyPlayers: Player[],
     createdAt: string,
     lobbyName: string,
-    started: boolean
+    started: boolean,
+    configurationUUID: string
   ) {
     this.teams = teams;
     this.players = players;
@@ -76,6 +78,7 @@ export class Lobby {
     this.createdAt = createdAt;
     this.lobbyName = lobbyName;
     this.started = started;
+    this.configurationUUID = configurationUUID;
   }
 }
 

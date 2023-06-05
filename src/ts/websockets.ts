@@ -20,6 +20,8 @@ export function removeHandleFunction(functionParam: any) {
 
 export function connect(lobby: string, player: string) {
   console.log("connect to lobby");
+  const locationArray = window.location.toString().split("/");
+  const configurationUUID = locationArray[locationArray.length - 1];
   player = player + " (" + localStorage.getItem("username") + ")";
   return new Promise((resolve) => {
     stompClientGame.value = Stomp.over(
@@ -28,7 +30,12 @@ export function connect(lobby: string, player: string) {
     playerUUID.value = getPlayerUUID();
     console.log("players uuid was: ", playerUUID.value);
     stompClientGame.value.connect(
-      { player: player, lobby: lobby, userUUID: playerUUID.value },
+      {
+        player: player,
+        configurationUUID: configurationUUID,
+        lobby: lobby,
+        userUUID: playerUUID.value,
+      },
       () => resolve(stompClientGame.value)
     );
   });
