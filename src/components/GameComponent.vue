@@ -54,13 +54,17 @@
         <div v-if="teamWon === 'teamA'">
           <h4>Game Result: Team A won!</h4>
           <p class="hint">
-            Team A answered more questions correctly than Team B.
+            Both Team A and Team B have showcased exceptional skill and
+            sportsmanship, proving that every match is a victory in its own way.
+            Here's to the journey, not just the outcome!
           </p>
         </div>
         <div v-if="teamWon === 'teamB'">
           <h4>Game Result: Team B won!</h4>
           <p class="hint">
-            Team B answered more questions correctly than Team A.
+            Both Team A and Team B have showcased exceptional skill and
+            sportsmanship, proving that every match is a victory in its own way.
+            Here's to the journey, not just the outcome!
           </p>
         </div>
         <div v-if="teamWon === 'draw'">
