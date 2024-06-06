@@ -187,6 +187,7 @@ onBeforeUnmount(() => {
  * button function
  */
 function disconnectFromLobby() {
+  playSound("@/assets/music/click_sound.mp3");
   websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
 }
@@ -198,6 +199,7 @@ function initGame() {
 }
 
 function putVote(answer: string) {
+  playSound("@/assets/music/put_vote_sound.mp3");
   websockets.putVote(
     props.lobby,
     props.team,
@@ -207,6 +209,7 @@ function putVote(answer: string) {
 }
 
 function nextQuestion() {
+  playSound("@/assets/music/click_sound.mp3");
   websockets.nextQuestion(props.lobby, props.team);
 }
 
@@ -261,6 +264,7 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
 
 function handleGameFinished() {
   if (teamWon.value !== "") {
+    playSound("@/assets/music/good_result_sound.mp3");
     console.log("finished");
     stopTowerAnimations();
     saveWinnerTeam();
@@ -485,6 +489,11 @@ const confettiConfig = {
     },
   },
 };
+
+function playSound(pathToAudioFile: string){
+  const sound = new Audio(pathToAudioFile);
+  sound.play();
+}
 </script>
 
 <style scoped>

@@ -132,11 +132,13 @@ onBeforeUnmount(() => {
  * @param team
  */
 function joinTeam(team: string) {
+  playClickSound();
   websockets.joinTeam(team, props.lobby);
   emit("setTeam", team);
 }
 
 function changeReady() {
+  playClickSound();
   if (props.team.includes("team")) {
     websockets.changeReady(props.lobby);
   }
@@ -146,6 +148,7 @@ function changeReady() {
  * button function, when player starts game
  */
 function startLobby() {
+  playClickSound();
   console.log("start game");
   websockets.startGame(props.lobby);
 }
@@ -154,6 +157,7 @@ function startLobby() {
  * button function
  */
 function disconnectFromLobby() {
+  playClickSound();
   websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
 }
@@ -204,6 +208,11 @@ function handleUpdateLobbyMessage(messageWrapper: MessageWrapper) {
   if (updatedLobby.updatedLobby.started) {
     emit("setStateToGame");
   }
+}
+
+function playClickSound(){
+  const clickSound = new Audio("@/assets/music/click_sound.mp3");
+  clickSound.play();
 }
 </script>
 

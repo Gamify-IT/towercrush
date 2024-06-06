@@ -112,6 +112,7 @@ function clickLobby(lobbyName: string) {
  * This methods connects and subscribes to the fitting paths if a player wants to join a lobby
  */
 function connectToLobby() {
+  playClickSound();
   websockets.clearDeveloperLobby();
   websockets
     .connect(lobby.value, player.value)
@@ -139,6 +140,11 @@ function subscribeToLobbyList() {
     .then(() => {
       joinedDevs.value = true;
     });
+}
+
+function playClickSound(){
+  const clickSound = new Audio("@/assets/music/click_sound.mp3");
+  clickSound.play();
 }
 </script>
 

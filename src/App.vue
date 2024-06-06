@@ -27,14 +27,34 @@
 
 <script setup lang="ts">
 import DarkMode from "@/components/DarkModeComponent.vue";
-import GameView from "@/views/GameView";
+import GameView from "@/views/GameView.vue";
+import { onMounted, onUnmounted } from "vue";
+
+const backgroundMusic = new Audio("@/assets/music/background_music.mp3");
+
+onMounted(() => {
+  backgroundMusic.play();
+  backgroundMusic.loop = true;
+});
+
+onUnmounted(() => {
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+})
 
 function reloadPage() {
+  playClickSound();
   window.location.reload();
 }
 
 function closeGame() {
+  playClickSound();
   window.parent.postMessage("CLOSE ME");
+}
+
+function playClickSound(){
+  const clickSound = new Audio("@/assets/music/click_sound.mp3");
+  clickSound.play();
 }
 </script>
 
