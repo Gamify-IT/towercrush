@@ -82,3 +82,23 @@ To remove the container you can use the following command:
 ```sh
 docker rm towercrush
 ```
+
+## Audio sources
+
+1.	Background music
+https://pixabay.com/de/music/elektronisch-going-on-foot-133469/
+
+2.	Click
+https://pixabay.com/de/sound-effects/interface-button-154180/
+
+3.	Good result
+https://pixabay.com/de/sound-effects/goodresult-82807/
+
+4.	Put vote sound
+https://pixabay.com/de/sound-effects/button-198922/
+
+5.	Rocket whistle
+https://zvukogram.com/zvuk/41741/
+
+6.	Explosion sound
+https://zvukogram.com/zvuk/41741/
