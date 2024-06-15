@@ -119,8 +119,7 @@ services:
 
   towercrush:
     container_name: towercrush
-    image: ghcr.io/gamify-it/towercrush:main
-    pull_policy: always
+    build: .
     restart: always
     expose:
       - "80"
