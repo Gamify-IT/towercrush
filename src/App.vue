@@ -10,11 +10,11 @@
         <b-button
           class="nav-buttons"
           id="restart-button"
-          v-on:click="reloadPage"
+          v-on:click="handleReloadPage"
         >
           Restart
         </b-button>
-        <b-button class="nav-buttons" id="close-button" v-on:click="closeGame">
+        <b-button class="nav-buttons" id="close-button" v-on:click="handleCloseGame">
           Close
         </b-button>
       </nav>
@@ -29,8 +29,11 @@
 import DarkMode from "@/components/DarkModeComponent.vue";
 import GameView from "@/views/GameView.vue";
 import { onMounted, onUnmounted } from "vue";
+import backgroundMusicSource from '/src/assets/music/background_music.mp3';
+import clickSoundSource from '/src/assets/music/click_sound.mp3';
 
-const backgroundMusic = new Audio("@/assets/music/background_music.mp3");
+const clickSound = new Audio(clickSoundSource);
+const backgroundMusic = new Audio(backgroundMusicSource);
 
 onMounted(() => {
   backgroundMusic.play();
@@ -43,18 +46,29 @@ onUnmounted(() => {
 })
 
 function reloadPage() {
-  playClickSound();
   window.location.reload();
 }
 
 function closeGame() {
-  playClickSound();
   window.parent.postMessage("CLOSE ME");
 }
 
 function playClickSound(){
-  const clickSound = new Audio("@/assets/music/click_sound.mp3");
   clickSound.play();
+}
+
+async function handleCloseGame() {
+  await playClickSound();
+    setTimeout(() => {
+      closeGame();
+    }, 500);
+}
+
+async function handleReloadPage() {
+  await playClickSound();
+    setTimeout(() => {
+      reloadPage();
+    }, 500);
 }
 </script>
 

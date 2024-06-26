@@ -89,6 +89,9 @@
 import { defineEmits, defineProps, onBeforeUnmount, onMounted, ref } from "vue";
 import { MessageWrapper, Purpose, UpdateLobbyMessage } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
+import clickSoundSource from '/src/assets/music/click_sound.mp3';
+
+const clickSound = new Audio(clickSoundSource);
 
 const messages = ref<Array<string>>([]);
 
@@ -211,7 +214,6 @@ function handleUpdateLobbyMessage(messageWrapper: MessageWrapper) {
 }
 
 function playClickSound(){
-  const clickSound = new Audio("@/assets/music/click_sound.mp3");
   clickSound.play();
 }
 </script>

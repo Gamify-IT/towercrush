@@ -45,6 +45,9 @@
 import { defineEmits, onBeforeUnmount, onMounted, ref } from "vue";
 import * as websockets from "@/ts/websockets";
 import { DeveloperMessage, MessageWrapper, Purpose } from "@/ts/models";
+import clickSoundSource from '/src/assets/music/click_sound.mp3';
+
+const clickSound = new Audio(clickSoundSource);
 const lobbies = ref();
 
 /**
@@ -143,7 +146,6 @@ function subscribeToLobbyList() {
 }
 
 function playClickSound(){
-  const clickSound = new Audio("@/assets/music/click_sound.mp3");
   clickSound.play();
 }
 </script>
