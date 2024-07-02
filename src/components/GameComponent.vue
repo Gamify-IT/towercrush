@@ -76,10 +76,11 @@
       </div>
       <div class="my-tower-status section">
         <div v-if="props.team === 'teamA'">
-          <h4>You are in Team A</h4>
+          <h4>You are in Team A. Therefore you gained {{ store.state.rewards }} coins!
+          </h4>
         </div>
         <div v-else>
-          <h4>You are in Team B</h4>
+          <h4>You are in Team B. Therefore you gained {{ store.state.rewards }} coins!</h4>
         </div>
       </div>
       <div
@@ -130,6 +131,7 @@ import {
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
 import { loadFull } from "tsparticles";
+import store from "@/store/index";
 
 async function particlesInit(engine: any) {
   await loadFull(engine);

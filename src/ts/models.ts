@@ -34,7 +34,8 @@ export class OverworldResultDTO {
     public game: string,
     public configurationId: string,
     public score = 100,
-    public userId: string
+    public userId: string,
+    public rewards: number
   ) {}
 }
 
