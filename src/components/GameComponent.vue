@@ -52,7 +52,7 @@
     <div class="game-status">
       <div class="game-result section" v-if="teamWon !== ''">
         <div v-if="teamWon === 'teamA'">
-          <h4>Game Result: Team A won!</h4>
+          <h4>Game Result: Team A won! Each player of TeamA gained 8 coins! Each player of TeamB gained 5 coins!</h4>
           <p class="hint">
             Both Team A and Team B have showcased exceptional skill and
             sportsmanship, proving that every match is a victory in its own way.
@@ -60,7 +60,7 @@
           </p>
         </div>
         <div v-if="teamWon === 'teamB'">
-          <h4>Game Result: Team B won!</h4>
+          <h4>Game Result: Team B won! Each player of TeamB gained 8 coins! Each player of TeamA gained 5 coins!</h4>
           <p class="hint">
             Both Team A and Team B have showcased exceptional skill and
             sportsmanship, proving that every match is a victory in its own way.
@@ -68,7 +68,7 @@
           </p>
         </div>
         <div v-if="teamWon === 'draw'">
-          <h4>Game Result: Draw!</h4>
+          <h4>Game Result: Draw! Each player gained 3 coins!</h4>
           <p class="hint">
             Both teams answered the same number of questions correctly.
           </p>
