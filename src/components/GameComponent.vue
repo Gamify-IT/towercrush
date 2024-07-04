@@ -91,20 +91,21 @@
       >
         <div class="tower section tower-team-a">
           <h4>Team A</h4>
-          <video class="towerVideo" id="towerTeamA" width="512" height="1024">
+          <img id="towerImage" src="../assets/Full_HP.png" width="512" height="1024" alt="Tower Image" />
+          <!-- <video class="towerVideo" id="towerTeamA" width="512" height="1024">
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
-          </video>
+          </video> -->
           <div class="time">{{ towerA }} seconds</div>
         </div>
-        <div class="tower section tower-team-b">
+        <!-- <div class="tower section tower-team-b">
           <h4>Team B</h4>
           <video class="towerVideo" id="towerTeamB" width="512" height="1024">
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
           </video>
           <div class="time">{{ towerB }} seconds</div>
-        </div>
+        </div> -->
       </div>
     </div>
     <Particles
