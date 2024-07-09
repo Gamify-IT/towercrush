@@ -130,6 +130,9 @@ import {
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
 import { loadFull } from "tsparticles";
+import clickSoundSource from '/src/assets/music/click_sound.mp3';
+import putVoteSoundSource from '/src/assets/music/put_vote_sound.mp3';
+import goodResultSoundSource from '/src/assets/music/good_result_sound.mp3';
 
 async function particlesInit(engine: any) {
   await loadFull(engine);
@@ -187,6 +190,7 @@ onBeforeUnmount(() => {
  * button function
  */
 function disconnectFromLobby() {
+  playSound(clickSoundSource);
   websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
 }
@@ -198,6 +202,7 @@ function initGame() {
 }
 
 function putVote(answer: string) {
+  playSound(putVoteSoundSource);
   websockets.putVote(
     props.lobby,
     props.team,
@@ -207,6 +212,7 @@ function putVote(answer: string) {
 }
 
 function nextQuestion() {
+  playSound(clickSoundSource);
   websockets.nextQuestion(props.lobby, props.team);
 }
 
@@ -261,6 +267,7 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
 
 function handleGameFinished() {
   if (teamWon.value !== "") {
+    playSound(goodResultSoundSource);
     console.log("finished");
     stopTowerAnimations();
     saveWinnerTeam();
@@ -485,6 +492,11 @@ const confettiConfig = {
     },
   },
 };
+
+function playSound(pathToAudioFile: string){
+  const sound = new Audio(pathToAudioFile);
+  sound.play();
+}
 </script>
 
 <style scoped>
