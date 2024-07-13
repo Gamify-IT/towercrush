@@ -130,6 +130,8 @@ import {
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
 import { loadFull } from "tsparticles";
+import trumpets from '/src/assets/trumpets.mp3';
+import negativeSound from '/src/assets/negativeSound.mp3';
 
 async function particlesInit(engine: any) {
   await loadFull(engine);
@@ -264,6 +266,11 @@ function handleGameFinished() {
     console.log("finished");
     stopTowerAnimations();
     saveWinnerTeam();
+    if (teamWon.value === props.team) {
+      playSound(trumpets, 2000);
+    } else {
+      playSound(negativeSound, 1000);
+    }
   }
 }
 
@@ -485,6 +492,13 @@ const confettiConfig = {
     },
   },
 };
+
+function playSound(pathToAudioFile: string, duration: number){
+  const sound = new Audio(pathToAudioFile);
+  sound.play();
+  setTimeout(() => sound.pause(), duration);
+}
+
 </script>
 
 <style scoped>
