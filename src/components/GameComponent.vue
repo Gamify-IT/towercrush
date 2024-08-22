@@ -48,6 +48,18 @@
         When all your team mates have cast their vote, you can submit the answer
         and continue with the next question.
       </p>
+      <p class="hint">---------------------</p>
+      <button class="btn btn-sm btn-info" @click="timeBoost">
+        +5 Time Boost
+      </button>
+      <p class="hint">---------------------</p>
+      <button class="btn btn-sm btn-info" @click="disconnectFromLobby">
+        Shield Boost
+      </button>
+      <p class="hint">----------------------</p>
+      <button class="btn btn-sm btn-info" @click="handleLoseLife">
+        Hint Boost
+      </button>
     </div>
     <div class="game-status">
       <div class="game-result section" v-if="teamWon !== ''">
@@ -76,10 +88,10 @@
       </div>
       <div class="my-tower-status section">
         <div v-if="props.team === 'teamA'">
-          <h4>You are in Team A</h4>
+          <h4>You have {{ lives }} lives left.</h4>
         </div>
         <div v-else>
-          <h4>You are in Team B</h4>
+          <h4>You have {{ lives }} lives left.</h4>
         </div>
       </div>
       <div
@@ -91,7 +103,13 @@
       >
         <div class="tower section tower-team-a">
           <h4>Team A</h4>
-          <video class="towerVideo" id="towerTeamA" width="512" height="1024">
+          <video
+            class="towerVideo"
+            id="towerTeamA"
+            width="1080"
+            height="1372"
+            autoplay
+          >
             <source src="../assets/towercrush.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
           </video>
@@ -99,8 +117,14 @@
         </div>
         <div class="tower section tower-team-b">
           <h4>Team B</h4>
-          <video class="towerVideo" id="towerTeamB" width="512" height="1024">
-            <source src="../assets/towercrush.mp4" type="video/mp4" />
+          <video
+            class="towerVideo"
+            id="towerTeamB"
+            width="1080"
+            height="1372"
+            autoplay
+          >
+            <source src="../assets/towercrush2.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
           </video>
           <div class="time">{{ towerB }} seconds</div>
@@ -119,6 +143,7 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
 import {
+  AnswerVote,
   Game,
   MessageWrapper,
   OverworldResultDTO,
@@ -130,6 +155,7 @@ import {
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
 import { loadFull } from "tsparticles";
+import axios from "@/__mocks__/axios";
 
 async function particlesInit(engine: any) {
   await loadFull(engine);
@@ -156,6 +182,7 @@ let previousJumpB = ref<number>(0);
 let previousAnswerPointsTeamA = ref<number>(0);
 let previousAnswerPointsTeamB = ref<number>(0);
 let configurationId = ref<string>("");
+let lives = ref<number>(4); // Max num of lives
 
 const props = defineProps<{
   lobby: string;
@@ -167,7 +194,23 @@ const props = defineProps<{
  */
 const emit = defineEmits<{
   (e: "setStateToStart"): void;
+  (e: "gameLiked"): void;
+  (e: "gameDisliked"): void;
+  (e: "gameReported"): void;
 }>();
+
+// Methods to handle game logic
+
+function calculateTowerSize(team: string): number {
+  // Calculate tower size based on initial size and remaining lives
+  const initialTowerSize = 100; // Example initial tower size
+  return initialTowerSize;
+}
+
+// Example function to handle game end
+function endGame() {
+  console.log("Game over!");
+}
 
 /**
  * Everytime this component mounts this method adds the local handler function
@@ -186,9 +229,14 @@ onBeforeUnmount(() => {
 /**
  * button function
  */
+
 function disconnectFromLobby() {
   websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
+}
+
+function timeBoost() {
+  //websockets.nextQuestion(props.lobby, props.team);
 }
 
 function initGame() {
@@ -205,9 +253,9 @@ function putVote(answer: string) {
     answer
   );
 }
-
 function nextQuestion() {
   websockets.nextQuestion(props.lobby, props.team);
+  websockets.loseLif(props.lobby, props.team);
 }
 
 initGame();
@@ -239,8 +287,7 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let game = updateGameMessage.game;
   towerA.value = game.towerSize.teamA;
   towerB.value = game.towerSize.teamB;
-  teamWon.value = game.winnerTeam;
-
+  lives.value = game.lives;
   if (!setSpeed.value) {
     manipulateVideoSpeed(game.initialTowerSize);
     setSpeed.value = true;
@@ -386,6 +433,17 @@ function updatePoints(
   previousJumpA.value = newJumpA;
   previousJumpB.value = newJumpB;
 }
+function likeGame() {
+  console.log("Liked the Question!");
+}
+
+function dislikeGame() {
+  console.log("Disliked the Question!");
+}
+
+function reportIssue() {
+  console.log("Reported an issue with the game!");
+}
 
 const confettiConfig = {
   fullScreen: {
@@ -488,6 +546,11 @@ const confettiConfig = {
 </script>
 
 <style scoped>
+.boost-button {
+  background-image: url("@/assets/time_boost.png");
+  background-size: cover;
+  color: white;
+}
 .nav-actions {
   padding: 0.5em 1em;
 }
@@ -595,6 +658,16 @@ h4 {
 
 .user-team-b .tower-team-a .time {
   line-height: 3em;
+}
+.feedback-section {
+  margin-top: 1em;
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.feedback-section button {
+  padding: 0.5em 1em;
 }
 
 @keyframes spin {
