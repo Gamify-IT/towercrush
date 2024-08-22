@@ -110,7 +110,7 @@
             height="1372"
             autoplay
           >
-            <source src="../assets/towercrush.mp4" type="video/mp4" />
+            <source src="../assets/towercrush3.mp4" type="video/mp4" />
             Your browser does not support HTML5 video.
           </video>
           <div class="time">{{ towerA }} seconds</div>
@@ -155,7 +155,13 @@ import {
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
 import { loadFull } from "tsparticles";
+<<<<<<< HEAD
 import axios from "@/__mocks__/axios";
+=======
+import clickSoundSource from '/src/assets/music/click_sound.mp3';
+import putVoteSoundSource from '/src/assets/music/put_vote_sound.mp3';
+import goodResultSoundSource from '/src/assets/music/good_result_sound.mp3';
+>>>>>>> be4e2fd1524141c08f18098f1956c8f343f7601d
 
 async function particlesInit(engine: any) {
   await loadFull(engine);
@@ -231,6 +237,7 @@ onBeforeUnmount(() => {
  */
 
 function disconnectFromLobby() {
+  playSound(clickSoundSource);
   websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
 }
@@ -246,6 +253,7 @@ function initGame() {
 }
 
 function putVote(answer: string) {
+  playSound(putVoteSoundSource);
   websockets.putVote(
     props.lobby,
     props.team,
@@ -254,6 +262,7 @@ function putVote(answer: string) {
   );
 }
 function nextQuestion() {
+  playSound(clickSoundSource);
   websockets.nextQuestion(props.lobby, props.team);
   websockets.loseLif(props.lobby, props.team);
 }
@@ -308,6 +317,7 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
 
 function handleGameFinished() {
   if (teamWon.value !== "") {
+    playSound(goodResultSoundSource);
     console.log("finished");
     stopTowerAnimations();
     saveWinnerTeam();
@@ -543,6 +553,11 @@ const confettiConfig = {
     },
   },
 };
+
+function playSound(pathToAudioFile: string){
+  const sound = new Audio(pathToAudioFile);
+  sound.play();
+}
 </script>
 
 <style scoped>

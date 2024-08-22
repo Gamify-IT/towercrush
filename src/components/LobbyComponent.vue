@@ -89,6 +89,9 @@
 import { defineEmits, defineProps, onBeforeUnmount, onMounted, ref } from "vue";
 import { MessageWrapper, Purpose, UpdateLobbyMessage } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
+import clickSoundSource from '/src/assets/music/click_sound.mp3';
+
+const clickSound = new Audio(clickSoundSource);
 
 const messages = ref<Array<string>>([]);
 
@@ -132,11 +135,13 @@ onBeforeUnmount(() => {
  * @param team
  */
 function joinTeam(team: string) {
+  playClickSound();
   websockets.joinTeam(team, props.lobby);
   emit("setTeam", team);
 }
 
 function changeReady() {
+  playClickSound();
   if (props.team.includes("team")) {
     websockets.changeReady(props.lobby);
   }
@@ -146,6 +151,7 @@ function changeReady() {
  * button function, when player starts game
  */
 function startLobby() {
+  playClickSound();
   console.log("start game");
   websockets.startGame(props.lobby);
 }
@@ -154,6 +160,7 @@ function startLobby() {
  * button function
  */
 function disconnectFromLobby() {
+  playClickSound();
   websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
 }
@@ -204,6 +211,10 @@ function handleUpdateLobbyMessage(messageWrapper: MessageWrapper) {
   if (updatedLobby.updatedLobby.started) {
     emit("setStateToGame");
   }
+}
+
+function playClickSound(){
+  clickSound.play();
 }
 </script>
 
