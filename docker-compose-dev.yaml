@@ -1,7 +1,6 @@
 version: "3.7"
 
 services:
-
   #databases
   setup:
     container_name: setup
@@ -67,7 +66,7 @@ services:
       KC_HTTP_PORT: 80
 
   overworld-backend:
-    container_name:   overworld-backend
+    container_name: overworld-backend
     image: ghcr.io/gamify-it/overworld-backend:main
     restart: always
     pull_policy: always
@@ -84,7 +83,7 @@ services:
       - KEYCLOAK_URL=http://keycloak/keycloak/realms/Gamify-IT
 
   towercrush-backend:
-    container_name:   towercrush-backend
+    container_name: towercrush-backend
     image: ghcr.io/gamify-it/towercrush-backend:main
     restart: always
     pull_policy: always

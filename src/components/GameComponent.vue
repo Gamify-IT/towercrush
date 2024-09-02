@@ -48,6 +48,18 @@
         When all your team mates have cast their vote, you can submit the answer
         and continue with the next question.
       </p>
+      <p class="hint">---------------------</p>
+      <button class="btn btn-sm btn-info" @click="timeBoost">
+        +5 Time Boost
+      </button>
+      <p class="hint">---------------------</p>
+      <button class="btn btn-sm btn-info" @click="disconnectFromLobby">
+        Shield Boost
+      </button>
+      <p class="hint">----------------------</p>
+      <button class="btn btn-sm btn-info" @click="handleLoseLife">
+        Hint Boost
+      </button>
     </div>
     <div class="game-status">
       <div class="game-result section" v-if="teamWon !== ''">
@@ -76,10 +88,10 @@
       </div>
       <div class="my-tower-status section">
         <div v-if="props.team === 'teamA'">
-          <h4>You are in Team A</h4>
+          <h4>You have {{ lives }} lives left.</h4>
         </div>
         <div v-else>
-          <h4>You are in Team B</h4>
+          <h4>You have {{ lives }} lives left.</h4>
         </div>
       </div>
       <div
@@ -89,20 +101,49 @@
           'user-team-b': props.team === 'teamB',
         }"
       >
-        <div class="tower section tower-team-a">
+      <div class="tower section tower-team-a">
           <h4>Team A</h4>
-          <video class="towerVideo" id="towerTeamA" width="512" height="1024">
-            <source src="../assets/towercrush.mp4" type="video/mp4" />
-            Your browser does not support HTML5 video.
-          </video>
+          <div class="tower-container">
+            <video
+              class="towerVideo"
+              id="towerTeamA"
+              width="1080"
+              height="1372"
+              autoplay
+              :src="teamAVideoSource"
+            >
+              Your browser does not support HTML5 video.
+            </video>
+            <!-- Dust animation for Team A -->
+            <div 
+              v-if="showDustAnimationA"
+              class="dust-animation"
+              @animationend="animationEnded('A')"
+            ></div>
+          </div>
           <div class="time">{{ towerA }} seconds</div>
         </div>
+    
         <div class="tower section tower-team-b">
           <h4>Team B</h4>
-          <video class="towerVideo" id="towerTeamB" width="512" height="1024">
-            <source src="../assets/towercrush.mp4" type="video/mp4" />
-            Your browser does not support HTML5 video.
-          </video>
+          <div class="tower-container">
+            <video
+              class="towerVideo"
+              id="towerTeamB"
+              width="1080"
+              height="1372"
+              autoplay
+              :src="teamBVideoSource"
+            >
+              Your browser does not support HTML5 video.
+            </video>
+            <!-- Dust animation for Team B -->
+            <div 
+              v-if="showDustAnimationB"
+              class="dust-animation"
+              @animationend="animationEnded('B')"
+            ></div>
+          </div>
           <div class="time">{{ towerB }} seconds</div>
         </div>
       </div>
@@ -115,10 +156,13 @@
       :options="confettiConfig"
     />
   </div>
+  
 </template>
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
+import { ref, computed, watch, defineProps, defineEmits, onBeforeUnmount, onMounted } from "vue";
+
 import {
+  AnswerVote,
   Game,
   MessageWrapper,
   OverworldResultDTO,
@@ -133,6 +177,21 @@ import { loadFull } from "tsparticles";
 import clickSoundSource from '/src/assets/music/click_sound.mp3';
 import putVoteSoundSource from '/src/assets/music/put_vote_sound.mp3';
 import goodResultSoundSource from '/src/assets/music/good_result_sound.mp3';
+
+// Import the video files directly
+import towercrush4_normal from '../assets/towercrush4_normal.mp4';
+import towercrush3_normal from '../assets/towercrush3_normal.mp4';
+import towercrush2_normal from '../assets/towercrush2_normal.mp4';
+import towercrush1_normal from '../assets/towercrush1_normal.mp4';
+import towercrush_normal from '../assets/towercrush_normal.mp4';
+
+// Import the video files directly
+import towercrush4_inverted from '../assets/towercrush4_inverted.mp4';
+import towercrush3_inverted from '../assets/towercrush3_inverted.mp4';
+import towercrush2_inverted from '../assets/towercrush2_inverted.mp4';
+import towercrush1_inverted from '../assets/towercrush1_inverted.mp4';
+import towercrush_inverted from '../assets/towercrush_inverted.mp4';
+
 
 async function particlesInit(engine: any) {
   await loadFull(engine);
@@ -159,6 +218,10 @@ let previousJumpB = ref<number>(0);
 let previousAnswerPointsTeamA = ref<number>(0);
 let previousAnswerPointsTeamB = ref<number>(0);
 let configurationId = ref<string>("");
+let lives = ref<number>(4); // Max num of lives
+const previousLives = ref<number>(lives.value); // Track previous lives to detect change
+const showDustAnimationA = ref<boolean>(false);
+const showDustAnimationB = ref<boolean>(false);
 
 const props = defineProps<{
   lobby: string;
@@ -171,6 +234,74 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "setStateToStart"): void;
 }>();
+
+// Methods to handle game logic
+
+function calculateTowerSize(team: string): number {
+  // Calculate tower size based on initial size and remaining lives
+  const initialTowerSize = 100; // Example initial tower size
+  return initialTowerSize;
+}
+
+// Example function to handle game end
+function endGame() {
+  console.log("Game over!");
+}
+
+const teamAVideoSource = computed(() => {
+  switch (lives.value) {
+    case 4:
+      return towercrush4_normal;
+    case 3:
+      return towercrush3_normal;
+    case 2:
+      return towercrush2_normal;
+    case 1:
+      return towercrush1_normal;
+    default:
+      return towercrush_normal;
+  }
+});
+
+const teamBVideoSource = computed(() => {
+  switch (lives.value) {
+    case 4:
+      return towercrush4_inverted;
+    case 3:
+      return towercrush3_inverted;
+    case 2:
+      return towercrush2_inverted;
+    case 1:
+      return towercrush1_inverted;
+    default:
+      return towercrush_inverted;
+  }
+});
+
+// Watch for changes in lives to trigger animations
+watch(lives, (newVal: number, oldVal: number) => {
+  if (newVal < oldVal) {
+    if (props.team === 'teamA') {
+      console.log("showduestAnimationA=true");
+      showDustAnimationA.value = true;
+    } else if (props.team === 'teamB') {
+      console.log("showduestAnimationB=true");
+      showDustAnimationB.value = true;
+    }
+  }
+});
+
+// Function to handle the end of the animation
+function animationEnded(team: string) {
+  if (team === 'A') {
+    console.log("animationEnd A.value = false");
+    showDustAnimationA.value = false;
+  } else if (team === 'B') {
+    console.log("animationEnd B.value = false");
+    showDustAnimationB.value = false;
+  }
+}
+
 
 /**
  * Everytime this component mounts this method adds the local handler function
@@ -189,10 +320,15 @@ onBeforeUnmount(() => {
 /**
  * button function
  */
+
 function disconnectFromLobby() {
   playSound(clickSoundSource);
   websockets.disconnectFromLobby(handleMessageReceipt);
   emit("setStateToStart");
+}
+
+function timeBoost() {
+  //websockets.nextQuestion(props.lobby, props.team);
 }
 
 function initGame() {
@@ -210,7 +346,6 @@ function putVote(answer: string) {
     answer
   );
 }
-
 function nextQuestion() {
   playSound(clickSoundSource);
   websockets.nextQuestion(props.lobby, props.team);
@@ -245,8 +380,7 @@ function handleUpdateGameMessage(messageBody: MessageWrapper) {
   let game = updateGameMessage.game;
   towerA.value = game.towerSize.teamA;
   towerB.value = game.towerSize.teamB;
-  teamWon.value = game.winnerTeam;
-
+  lives.value = game.lives;
   if (!setSpeed.value) {
     manipulateVideoSpeed(game.initialTowerSize);
     setSpeed.value = true;
@@ -393,6 +527,17 @@ function updatePoints(
   previousJumpA.value = newJumpA;
   previousJumpB.value = newJumpB;
 }
+function likeGame() {
+  console.log("Liked the Question!");
+}
+
+function dislikeGame() {
+  console.log("Disliked the Question!");
+}
+
+function reportIssue() {
+  console.log("Reported an issue with the game!");
+}
 
 const confettiConfig = {
   fullScreen: {
@@ -500,6 +645,11 @@ function playSound(pathToAudioFile: string){
 </script>
 
 <style scoped>
+.boost-button {
+  background-image: url("@/assets/time_boost.png");
+  background-size: cover;
+  color: white;
+}
 .nav-actions {
   padding: 0.5em 1em;
 }
@@ -607,6 +757,51 @@ h4 {
 
 .user-team-b .tower-team-a .time {
   line-height: 3em;
+}
+.feedback-section {
+  margin-top: 1em;
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.feedback-section button {
+  padding: 0.5em 1em;
+}
+
+.tower-container {
+  position: relative; /* Ensure the container is positioned relative for absolute positioning inside */
+  display: inline-block;
+  width: 100%;
+  height: auto;
+}
+
+.dust-animation {
+  position: absolute;
+  top: 0%; /* Center vertically */
+  left: 0%; /* Center horizontally */
+  width: 70%; /* Reduce size to be smaller, adjust as necessary */
+  height: 70%; /* Reduce size to be smaller, adjust as necessary */
+  transform: translate(-50%, -50%) scale(1); /* Translate to center */
+  background: url('../assets/dust_sprite.png'); /* Use an appropriate sprite or image */
+  background-size: contain;
+  animation: dustExplosion 1s ease-out;
+  pointer-events: none; /* Ensures that the animation doesn't block any interactions */
+}
+
+@keyframes dustExplosion {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
 }
 
 @keyframes spin {

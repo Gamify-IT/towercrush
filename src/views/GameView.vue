@@ -22,7 +22,7 @@
       :team="team"
     ></GameComponent>
   </div>
-</template>
+</template> 
 <script setup lang="ts">
 import { GameState } from "@/ts/models";
 import StartComponent from "@/components/StartComponent";
