@@ -28,30 +28,18 @@
 <script setup lang="ts">
 import DarkMode from "@/components/DarkModeComponent.vue";
 import GameView from "@/views/GameView.vue";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import backgroundMusicSource from '@/assets/music/background_music.mp3';
 import clickSoundSource from '@/assets/music/click_sound.mp3';
 
 const clickSound = new Audio(clickSoundSource);
 const backgroundMusic = new Audio(backgroundMusicSource);
-import axios from "axios";
-import config from "./config";
-let configurationId = ref<string>("");
-let locationArray = window.location.toString().split("/");
-configurationId.value = locationArray[locationArray.length - 1];
+import { getAndChangeVolumeLevel } from "./ts/volumeLevel";
 let volumeLevel : number | null = 0;
 
 onMounted(async () => {
   try {
-    let result = await axios.get(
-      `${config.apiBaseUrl}/configurations/` + configurationId.value + `/volume`
-    );
-    volumeLevel = result.data.volumeLevel;
-    if (volumeLevel == 2 || volumeLevel == 3) {
-      volumeLevel = 1;
-    } else if (volumeLevel == 1) {
-      volumeLevel = 0.5;
-    }
+    volumeLevel = await getAndChangeVolumeLevel();
     backgroundMusic.volume = volumeLevel !== null ? volumeLevel : 1;
     clickSound.volume = volumeLevel !== null ? volumeLevel : 1;
     backgroundMusic.loop = true;
@@ -62,7 +50,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
 })
