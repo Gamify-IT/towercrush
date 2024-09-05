@@ -29,15 +29,24 @@
 import DarkMode from "@/components/DarkModeComponent.vue";
 import GameView from "@/views/GameView.vue";
 import { onMounted, onUnmounted } from "vue";
-import backgroundMusicSource from '/src/assets/music/background_music.mp3';
-import clickSoundSource from '/src/assets/music/click_sound.mp3';
+import backgroundMusicSource from '@/assets/music/background_music.mp3';
+import clickSoundSource from '@/assets/music/click_sound.mp3';
 
 const clickSound = new Audio(clickSoundSource);
 const backgroundMusic = new Audio(backgroundMusicSource);
+import { getAndChangeVolumeLevel } from "./ts/volumeLevel";
+let volumeLevel : number | null = 0;
 
-onMounted(() => {
-  backgroundMusic.play();
-  backgroundMusic.loop = true;
+onMounted(async () => {
+  try {
+    volumeLevel = await getAndChangeVolumeLevel();
+    backgroundMusic.volume = volumeLevel !== null ? volumeLevel : 1;
+    clickSound.volume = volumeLevel !== null ? volumeLevel : 1;
+    backgroundMusic.loop = true;
+    await backgroundMusic.play();
+  } catch (error) {
+    console.error("Error loading configuration or playing audio: ", error);
+  }
 });
 
 onUnmounted(() => {

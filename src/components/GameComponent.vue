@@ -174,9 +174,11 @@ import {
 import * as websockets from "@/ts/websockets";
 import { postOverworldResultDTO } from "@/ts/minigame-rest-client";
 import { loadFull } from "tsparticles";
-import clickSoundSource from '/src/assets/music/click_sound.mp3';
-import putVoteSoundSource from '/src/assets/music/put_vote_sound.mp3';
-import goodResultSoundSource from '/src/assets/music/good_result_sound.mp3';
+import clickSoundSource from '@/assets/music/click_sound.mp3';
+import putVoteSoundSource from '@/assets/music/put_vote_sound.mp3';
+import goodResultSoundSource from '@/assets/music/good_result_sound.mp3';
+import axios from "axios";
+import config from "@/config";
 
 // Import the video files directly
 import towercrush4_normal from '../assets/towercrush4_normal.mp4';
@@ -191,6 +193,7 @@ import towercrush3_inverted from '../assets/towercrush3_inverted.mp4';
 import towercrush2_inverted from '../assets/towercrush2_inverted.mp4';
 import towercrush1_inverted from '../assets/towercrush1_inverted.mp4';
 import towercrush_inverted from '../assets/towercrush_inverted.mp4';
+import { getAndChangeVolumeLevel } from "@/ts/volumeLevel";
 
 
 async function particlesInit(engine: any) {
@@ -222,6 +225,7 @@ let lives = ref<number>(4); // Max num of lives
 const previousLives = ref<number>(lives.value); // Track previous lives to detect change
 const showDustAnimationA = ref<boolean>(false);
 const showDustAnimationB = ref<boolean>(false);
+let volumeLevel : number | null = 0;
 
 const props = defineProps<{
   lobby: string;
@@ -306,7 +310,13 @@ function animationEnded(team: string) {
 /**
  * Everytime this component mounts this method adds the local handler function
  */
-onMounted(() => {
+onMounted(async () => {
+  try {
+    volumeLevel = await getAndChangeVolumeLevel();
+
+  } catch (error) {
+    console.error("Error loading configuration or playing audio: ", error);
+  }
   websockets.addHandleFunction(handleMessageReceipt);
 });
 
@@ -640,6 +650,8 @@ const confettiConfig = {
 
 function playSound(pathToAudioFile: string){
   const sound = new Audio(pathToAudioFile);
+  
+  sound.volume = volumeLevel !== null ? volumeLevel : 1;
   sound.play();
 }
 </script>

@@ -45,15 +45,24 @@
 import { defineEmits, onBeforeUnmount, onMounted, ref } from "vue";
 import * as websockets from "@/ts/websockets";
 import { DeveloperMessage, MessageWrapper, Purpose } from "@/ts/models";
-import clickSoundSource from '/src/assets/music/click_sound.mp3';
+import clickSoundSource from '@/assets/music/click_sound.mp3';
+import { getAndChangeVolumeLevel } from "@/ts/volumeLevel";
 
 const clickSound = new Audio(clickSoundSource);
 const lobbies = ref();
+let volumeLevel : number | null = 0;
+
 
 /**
  * Everytime this components mounts this method adds the local handler function
  */
-onMounted(() => {
+onMounted(async () => {
+  try {
+    volumeLevel = await getAndChangeVolumeLevel();
+    clickSound.volume = volumeLevel !== null ? volumeLevel : 1;
+  } catch (error) {
+    console.error("Error loading configuration or playing audio: ", error);
+  }
   websockets.addHandleFunction(handleMessageReceipt);
   subscribeToLobbyList();
 });

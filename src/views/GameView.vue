@@ -25,8 +25,8 @@
 </template> 
 <script setup lang="ts">
 import { GameState } from "@/ts/models";
-import StartComponent from "@/components/StartComponent";
-import LobbyComponent from "@/components/LobbyComponent";
+import StartComponent from "@/components/StartComponent.vue";
+import LobbyComponent from "@/components/LobbyComponent.vue";
 import { ref } from "vue";
 import GameComponent from "@/components/GameComponent.vue";
 

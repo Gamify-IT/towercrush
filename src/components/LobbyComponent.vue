@@ -89,7 +89,8 @@
 import { defineEmits, defineProps, onBeforeUnmount, onMounted, ref } from "vue";
 import { MessageWrapper, Purpose, UpdateLobbyMessage } from "@/ts/models";
 import * as websockets from "@/ts/websockets";
-import clickSoundSource from '/src/assets/music/click_sound.mp3';
+import clickSoundSource from '@/assets/music/click_sound.mp3';
+import { getAndChangeVolumeLevel } from "@/ts/volumeLevel";
 
 const clickSound = new Audio(clickSoundSource);
 
@@ -99,6 +100,8 @@ let teamA = ref<Array<string>>([]); //lobby (game)
 let teamB = ref<Array<string>>([]); //lobby (game)
 let players = ref<Array<string>>([]); //lobby (game)
 let readyPlayers = ref<Array<string>>([]);
+
+let volumeLevel : number | null = 0;
 
 const props = defineProps<{
   lobby: string;
@@ -118,7 +121,13 @@ const emit = defineEmits<{
 /**
  * Everytime this components mounts this method adds the local handler function
  */
-onMounted(() => {
+onMounted(async () => {
+  try {
+    volumeLevel = await getAndChangeVolumeLevel();
+    clickSound.volume = volumeLevel !== null ? volumeLevel : 1;
+  } catch (error) {
+    console.error("Error loading configuration or playing audio: ", error);
+  }
   websockets.fetchLobbyData(props.lobby);
   websockets.addHandleFunction(handleMessageReceipt);
 });
