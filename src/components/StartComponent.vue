@@ -45,15 +45,36 @@
 import { defineEmits, onBeforeUnmount, onMounted, ref } from "vue";
 import * as websockets from "@/ts/websockets";
 import { DeveloperMessage, MessageWrapper, Purpose } from "@/ts/models";
-import clickSoundSource from '/src/assets/music/click_sound.mp3';
+import clickSoundSource from '@/assets/music/click_sound.mp3';
+import axios from "axios";
+import config from "@/config";
 
 const clickSound = new Audio(clickSoundSource);
 const lobbies = ref();
+let configurationId = ref<string>("");
+let locationArray = window.location.toString().split("/");
+let volumeLevel : number | null = 0;
+
 
 /**
  * Everytime this components mounts this method adds the local handler function
  */
-onMounted(() => {
+onMounted(async () => {
+  configurationId.value = locationArray[locationArray.length - 1];
+  try {
+    let result = await axios.get(
+      `${config.apiBaseUrl}/configurations/` + configurationId.value + `/volume`
+    );
+    volumeLevel = result.data.volumeLevel;
+    if (volumeLevel == 2 || volumeLevel == 3) {
+      volumeLevel = 1;
+    } else if (volumeLevel == 1) {
+      volumeLevel = 0.5;
+    }
+    clickSound.volume = volumeLevel !== null ? volumeLevel : 1;
+  } catch (error) {
+    console.error("Error loading configuration or playing audio: ", error);
+  }
   websockets.addHandleFunction(handleMessageReceipt);
   subscribeToLobbyList();
 });

@@ -67,10 +67,5 @@ https://pixabay.com/de/sound-effects/goodresult-82807/
 4.	Put vote sound
 https://pixabay.com/de/sound-effects/button-198922/
 
-5.	Rocket whistle
-https://zvukogram.com/zvuk/41741/
-
-6.	Explosion sound
-https://zvukogram.com/zvuk/41741/
 
 > End of additions
