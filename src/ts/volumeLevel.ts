@@ -15,8 +15,8 @@ export async function getAndChangeVolumeLevel (): Promise<number | null> {
     volumeLevel = result.data.volumeLevel;
     if (volumeLevel == 2 || volumeLevel == 3) {
         volumeLevel = 1;
-      } else if (volumeLevel == 1) {
+    } else if (volumeLevel == 1) {
         volumeLevel = 0.5;
-      }
-      return volumeLevel;
+    }
+    return volumeLevel;
 }
